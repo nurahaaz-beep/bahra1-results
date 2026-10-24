@@ -901,6 +901,92 @@
   </style>
 </head>
 <body>
+<script>
+// إصلاح تلقائي لملفات الفيديو وPDF من مستودع GitHub نفسه.
+// لا يعتمد على كتابة أسماء الملفات العربية يدويًا؛ يبحث عنها في المستودع ثم يربطها بالموقع.
+(function () {
+  const OWNER = 'nurahaaz-beep';
+  const REPO = 'bahra1-results';
+  const BRANCH = 'main';
+  const RAW = `https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/`;
+  const API = `https://api.github.com/repos/${OWNER}/${REPO}/contents/?ref=${BRANCH}`;
+
+  const normalize = (v) => (v || '')
+    .toLowerCase()
+    .replace(/\.(mp4|pdf)$/i, '')
+    .replace(/[\u064B-\u065F\u0670]/g, '')
+    .replace(/[إأآا]/g, 'ا')
+    .replace(/[ى]/g, 'ي')
+    .replace(/[ؤ]/g, 'و')
+    .replace(/[ئ]/g, 'ي')
+    .replace(/[ـ\s_\-]+/g, '')
+    .trim();
+
+  function rawUrl(name) { return RAW + encodeURIComponent(name); }
+
+  async function connectAssets() {
+    try {
+      const response = await fetch(API, { cache: 'no-store' });
+      if (!response.ok) throw new Error('GitHub API: ' + response.status);
+      const files = await response.json();
+      const videos = files.filter(f => f.type === 'file' && /\.mp4$/i.test(f.name));
+      const pdfs = files.filter(f => f.type === 'file' && /\.pdf$/i.test(f.name));
+
+      const videoKeys = [
+        'الاختبارات',
+        'التخصصات',
+        'السلوك المهني 2',
+        'توزيع الدرجات',
+        'تقويم الطالب',
+        'قواعد السلوك والمواظبة'
+      ];
+
+      document.querySelectorAll('video').forEach((video, index) => {
+        const wanted = videoKeys[index];
+        if (!wanted) return;
+        const key = normalize(wanted);
+        const match = videos.find(f => normalize(f.name) === key) ||
+                      videos.find(f => normalize(f.name).includes(key) || key.includes(normalize(f.name)));
+        if (match) {
+          video.querySelectorAll('source').forEach(source => source.remove());
+          const source = document.createElement('source');
+          source.src = rawUrl(match.name);
+          source.type = 'video/mp4';
+          video.appendChild(source);
+          video.load();
+        }
+      });
+
+      const pdfTargets = [
+        { text: 'تحميل دليل التخصصات', keys: ['دليل التخصصات'] },
+        { text: 'تحميل وثيقة السلوك المهني', keys: ['السلوك المهني', 'مدونة السلوك المهني', 'السلوك الوظيفي'] },
+        { text: 'تحميل قواعد السلوك والمواظبة', keys: ['قواعد السلوك والمواظبة', 'السلوك والمواظبة'] }
+      ];
+
+      document.querySelectorAll('a.btn-download').forEach(link => {
+        const label = (link.textContent || '').trim();
+        const target = pdfTargets.find(t => label.includes(t.text));
+        if (!target) return;
+        const match = pdfs.find(f => target.keys.some(k => normalize(f.name).includes(normalize(k))));
+        if (match) {
+          link.href = rawUrl(match.name);
+          link.target = '_blank';
+          link.removeAttribute('download');
+        }
+      });
+    } catch (error) {
+      console.warn('تعذر ربط ملفات GitHub تلقائيًا:', error);
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', connectAssets);
+  } else {
+    connectAssets();
+  }
+})();
+</script>
+
 
   <!-- الترويسة العلوية الكاملة بدون قص -->
   <header class="site-banner-wrapper">
@@ -994,12 +1080,14 @@
         <h2 class="page-heading">دليل الاختبارات 2025م</h2>
         <div class="video-showcase-container">
           <div class="video-player-wrapper">
-            <video class="local-guide-video" controls preload="metadata" playsinline width="100%" data-video-file="الاختبارات.mp4">
+            <video controls preload="auto" playsinline width="100%">
+              <source src="الاختبارات.mp4" type="video/mp4">
+              <source src="%D8%A7%D9%84%D8%AE%D8%AA%D8%A8%D8%A7%D8%B1%D8%A7%D8%AA.mp4" type="video/mp4">
             </video>
           </div>
         </div>
         <div class="card">
-          <a href="https://www.moe.gov.sa/ar/aboutus/aboutministry/RPRLibrary/__%D8%AF%D9%84%D9%8A%D9%84%20%D8%A7%D9%84%D8%A7%D8%AE%D8%AA%D8%A8%D8%A7%D8%B1%D8%A7%D8%AA%202025%D9%85%20%D9%85%D8%AD%D8%AF%D8%AB.pdf" target="_blank" rel="noopener noreferrer" class="btn-download" data-local-keywords="دليل|الاختبارات|2025">
+          <a href="https://www.moe.gov.sa/ar/aboutus/aboutministry/RPRLibrary/__%D8%AF%D9%84%D9%8A%D9%84%20%D8%A7%D9%84%D8%A7%D8%AE%D8%AA%D8%A8%D8%A7%D8%B1%D8%A7%D8%AA%202025%D9%85%20%D9%85%D8%AD%D8%AF%D8%AB.pdf" target="_blank" rel="noopener noreferrer" class="btn-download">
             <i class="fa-solid fa-file-pdf"></i> تحميل نسخة الدليل (PDF)
           </a>
         </div>
@@ -1034,12 +1122,14 @@
         <h2 class="page-heading">دليل التخصصات لشغل الوظائف التعليمية 2025م</h2>
         <div class="video-showcase-container">
           <div class="video-player-wrapper">
-            <video class="local-guide-video" controls preload="metadata" playsinline width="100%" data-video-file="التخصصات.mp4">
+            <video controls preload="auto" playsinline width="100%">
+              <source src="التخصصات.mp4" type="video/mp4">
+              <source src="%D8%A7%D9%84%D8%AA%D8%AE%D8%B5%D8%B5%D8%A7%D8%AA.mp4" type="video/mp4">
             </video>
           </div>
         </div>
         <div class="card">
-          <a href="https://www.moe.gov.sa/ar/aboutus/aboutministry/RPRLibrary/%D8%AF%D9%84%D9%8A%D9%84%20%D8%A7%D9%84%D8%AA%D8%AE%D8%B5%D8%B5%D8%A7%D8%AA%20%D9%84%D8%B4%D8%BA%D9%84%20%D8%A7%D9%84%D9%88%D8%B8%D8%A7%D8%A6%D9%81%20%D8%A7%D9%84%D8%AA%D8%AE%D9%84%D9%8A%D9%85%D9%8A%D8%A9.pdf" target="_blank" rel="noopener noreferrer" class="btn-download" data-local-keywords="دليل|التخصصات">
+          <a href="https://www.moe.gov.sa/ar/aboutus/aboutministry/RPRLibrary/%D8%AF%D9%84%D9%8A%D9%84%20%D8%A7%D9%84%D8%AA%D8%AE%D8%B5%D8%B5%D8%A7%D8%AA%20%D9%84%D8%B4%D8%BA%D9%84%20%D8%A7%D9%84%D9%88%D8%B8%D8%A7%D8%A6%D9%81%20%D8%A7%D9%84%D8%AA%D8%AE%D9%84%D9%8A%D9%85%D9%8A%D8%A9.pdf" target="_blank" rel="noopener noreferrer" class="btn-download">
             <i class="fa-solid fa-file-pdf"></i> تحميل دليل التخصصات (PDF)
           </a>
         </div>
@@ -1074,12 +1164,14 @@
         <h2 class="page-heading">مدونة قواعد السلوك الوظيفي وأخلاقيات الوظيفة 1447هـ</h2>
         <div class="video-showcase-container">
           <div class="video-player-wrapper">
-            <video class="local-guide-video" controls preload="metadata" playsinline width="100%" data-video-file="السلوك المهني 2.mp4">
+            <video controls preload="auto" playsinline width="100%">
+              <source src="السلوك المهني 2.mp4" type="video/mp4">
+              <source src="%D8%A7%D9%84%D8%B3%D9%84%D9%88%D9%83%20%D8%A7%D9%84%D9%85%D9%87%D9%86%D9%8A%202.mp4" type="video/mp4">
             </video>
           </div>
         </div>
         <div class="card">
-          <a href="conduct_guide.pdf" download="مدونة السلوك المهني.pdf" data-local-keywords="conduct|guide" data-local-file="conduct_guide.pdf" class="btn-download">
+          <a href="conduct_guide.pdf" download="مدونة السلوك المهني.pdf" class="btn-download">
             <i class="fa-solid fa-file-pdf"></i> تحميل وثيقة السلوك المهني (PDF)
           </a>
         </div>
@@ -1114,12 +1206,14 @@
         <h2 class="page-heading">دليل توزيع درجات المواد الدراسية 2025م</h2>
         <div class="video-showcase-container">
           <div class="video-player-wrapper">
-            <video class="local-guide-video" controls preload="metadata" playsinline width="100%" data-video-file="توزيع الدرجات.mp4">
+            <video controls preload="auto" playsinline width="100%">
+              <source src="توزيع الدرجات.mp4" type="video/mp4">
+              <source src="%D8%AA%D9%88%D8%B2%D9%8A%D8%B9%20%D8%A7%D9%84%D8%AF%D8%B1%D8%AC%D8%A7%D8%AA.mp4" type="video/mp4">
             </video>
           </div>
         </div>
         <div class="card">
-          <a href="https://www.moe.gov.sa/ar/aboutus/aboutministry/RPRLibrary/__%D8%AF%D9%84%D9%8A%D9%84%20%D8%AA%D9%88%D8%B2%D9%8A%D8%B9%20%D8%AF%D8%B1%D8%AC%D8%A7%D8%AA%20%D8%A7%D9%84%D9%85%D9%88%D8%A7%D8%AF%20%D8%A7%D9%84%D8%AF%D8%B1%D8%A7%D8%B3%D9%8A%D8%A9%202025%D9%85.pdf" target="_blank" rel="noopener noreferrer" class="btn-download" data-local-keywords="دليل|درجات|المواد">
+          <a href="https://www.moe.gov.sa/ar/aboutus/aboutministry/RPRLibrary/__%D8%AF%D9%84%D9%8A%D9%84%20%D8%AA%D9%88%D8%B2%D9%8A%D8%B9%20%D8%AF%D8%B1%D8%AC%D8%A7%D8%AA%20%D8%A7%D9%84%D9%85%D9%88%D8%A7%D8%AF%20%D8%A7%D9%84%D8%AF%D8%B1%D8%A7%D8%B3%D9%8A%D8%A9%202025%D9%85.pdf" target="_blank" rel="noopener noreferrer" class="btn-download">
             <i class="fa-solid fa-file-pdf"></i> تحميل دليل توزيع درجات المواد (PDF)
           </a>
         </div>
@@ -1154,12 +1248,14 @@
         <h2 class="page-heading">لائحة تقويم الطالب 2025م</h2>
         <div class="video-showcase-container">
           <div class="video-player-wrapper">
-            <video class="local-guide-video" controls preload="metadata" playsinline width="100%" data-video-file="تقويم الطالب.mp4">
+            <video controls preload="auto" playsinline width="100%">
+              <source src="تقويم الطالب.mp4" type="video/mp4">
+              <source src="%D8%AA%D9%82%D9%88%D9%8A%D9%85%20%D8%A7%D9%84%D8%B7%D8%A7%D9%84%D8%A8.mp4" type="video/mp4">
             </video>
           </div>
         </div>
         <div class="card">
-          <a href="https://www.moe.gov.sa/ar/aboutus/aboutministry/RPRLibrary/%D9%84%D8%A7%D9%8A%D9%94%D8%AD%D8%A9%20%D8%AA%D9%82%D9%88%D9%8A%D9%85%20%D8%A7%D9%84%D8%B7%D8%A7%D9%84%D8%A8%202025%D9%85.pdf" target="_blank" rel="noopener noreferrer" class="btn-download" data-local-keywords="لائحة|تقويم|الطالب|2025">
+          <a href="https://www.moe.gov.sa/ar/aboutus/aboutministry/RPRLibrary/%D9%84%D8%A7%D9%8A%D9%94%D8%AD%D8%A9%20%D8%AA%D9%82%D9%88%D9%8A%D9%85%20%D8%A7%D9%84%D8%B7%D8%A7%D9%84%D8%A8%202025%D9%85.pdf" target="_blank" rel="noopener noreferrer" class="btn-download">
             <i class="fa-solid fa-file-pdf"></i> تحميل لائحة تقويم الطالب 2025م (PDF)
           </a>
         </div>
@@ -1194,12 +1290,14 @@
         <h2 class="page-heading">قواعد السلوك والمواظبة 1447هـ</h2>
         <div class="video-showcase-container">
           <div class="video-player-wrapper">
-            <video class="local-guide-video" controls preload="metadata" playsinline width="100%" data-video-file="قواعد السلوك والمواظبة.mp4">
+            <video controls preload="auto" playsinline width="100%">
+              <source src="قواعد السلوك والمواظبة.mp4" type="video/mp4">
+              <source src="%D9%82%D9%88%D8%A7%D8%B9%D8%AF%20%D8%A7%D9%84%D8%B3%D9%84%D9%88%D9%83%20%D8%A7%D9%84%D9%85%D9%88%D8%A7%D8%B8%D8%A8%D8%A9.mp4" type="video/mp4">
             </video>
           </div>
         </div>
         <div class="card">
-          <a href="https://www.moe.gov.sa/ar/aboutus/aboutministry/RPRLibrary/%D9%82%D9%88%D8%A7%D8%B9%D8%AF%20%D8%A7%D9%84%D8%B3%D9%84%D9%88%D9%83%20%D8%A7%D9%84%D9%85%D9%88%D8%A7%D8%B8%D8%A8%D8%A9%20%D9%84%D8%B7%D9%84%D8%A7%D8%A8%20%D9%88%D8%B7%D8%A7%D9%84%D8%A8%D8%A7%D8%AA%20%D8%A7%D9%84%D8%AA%D8%B9%D9%84%D9%8A%D9%85%20%D8%A7%D9%84%D8%B9%D8%A7%D9%85%201447.pdf" target="_blank" rel="noopener noreferrer" class="btn-download" data-local-keywords="سلوك|مواظبة|1447">
+          <a href="https://www.moe.gov.sa/ar/aboutus/aboutministry/RPRLibrary/%D9%82%D9%88%D8%A7%D8%B9%D8%AF%20%D8%A7%D9%84%D8%B3%D9%84%D9%88%D9%83%20%D8%A7%D9%84%D9%85%D9%88%D8%A7%D8%B8%D8%A8%D8%A9%20%D9%84%D8%B7%D9%84%D8%A7%D8%A8%20%D9%88%D8%B7%D8%A7%D9%84%D8%A8%D8%A7%D8%AA%20%D8%A7%D9%84%D8%AA%D8%B9%D9%84%D9%8A%D9%85%20%D8%A7%D9%84%D8%B9%D8%A7%D9%85%201447.pdf" target="_blank" rel="noopener noreferrer" class="btn-download">
             <i class="fa-solid fa-file-pdf"></i> تحميل قواعد السلوك والمواظبة 1447هـ (PDF)
           </a>
         </div>
@@ -1763,69 +1861,5 @@
       }
     }
   </script>
-
-<script>
-(function () {
-  const GITHUB_API = 'https://api.github.com/repos/nurahaaz-beep/bahra1-results/contents/';
-
-  // Resolve uploaded files from the GitHub repository itself.
-  // This avoids problems caused by Arabic filenames, spaces and URL encoding.
-  function githubFileUrl(fileName) {
-    return 'https://nurahaaz-beep.github.io/bahra1-results/' + encodeURIComponent(fileName).replace(/%2F/gi, '/');
-  }
-
-  function normalizeName(name) {
-    return decodeURIComponent(name || '')
-      .toLowerCase()
-      .replace(/[ــ]/g, '')
-      .replace(/[\s_\-]+/g, '')
-      .replace(/[أإآ]/g, 'ا')
-      .replace(/ى/g, 'ي')
-      .replace(/ة/g, 'ه');
-  }
-
-  async function loadRepositoryFiles() {
-    try {
-      const response = await fetch(GITHUB_API + '?ref=main', { cache: 'no-store' });
-      if (!response.ok) throw new Error('GitHub API: ' + response.status);
-      const files = await response.json();
-      const fileMap = files.filter(f => f.type === 'file').map(f => ({
-        name: f.name,
-        url: githubFileUrl(f.name)
-      }));
-
-      // Videos: use the exact filename stored in data-video-file.
-      document.querySelectorAll('video.local-guide-video').forEach(function (video) {
-        const requested = video.getAttribute('data-video-file');
-        if (!requested) return;
-        const wanted = normalizeName(requested);
-        const found = fileMap.find(f => normalizeName(f.name) === wanted);
-        const source = document.createElement('source');
-        source.src = found ? found.url : githubFileUrl(requested);
-        source.type = 'video/mp4';
-        video.appendChild(source);
-        video.load();
-      });
-
-      // PDFs: search the repository by the descriptive keywords below.
-      document.querySelectorAll('a[data-local-keywords]').forEach(function (link) {
-        const keywords = link.getAttribute('data-local-keywords')
-          .split('|').map(normalizeName).filter(Boolean);
-        const found = fileMap.find(f => {
-          const n = normalizeName(f.name);
-          return keywords.every(k => n.includes(k));
-        });
-        if (found) link.href = found.url;
-      });
-    } catch (error) {
-      console.warn('تعذر الوصول إلى قائمة ملفات GitHub:', error);
-      // Keep any existing href as a fallback.
-    }
-  }
-
-  loadRepositoryFiles();
-})();
-</script>
-
 </body>
 </html>
