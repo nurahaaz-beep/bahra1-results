@@ -1,0 +1,1779 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+  <title>ثانوية بحرة الأولى - منصة الأدلة التنظيمية</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&family=Amiri:wght@700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    :root {
+      --primary-color: #0b6051;
+      --primary-hover: #084c40;
+      --accent-color: #cda851;
+      --bg-light: #f6f8f7;
+      --card-bg: #ffffff;
+      --text-main: #23272a;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+      --sidebar-width: 290px;
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --shadow-sm: 0 2px 5px rgba(0,0,0,0.04);
+      --shadow-md: 0 4px 15px rgba(11, 96, 81, 0.08);
+      --success-color: #16a34a;
+      --error-color: #dc2626;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Tajawal', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg-light);
+      color: var(--text-main);
+      overflow-x: hidden;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* الترويسة العلوية الكاملة بدون أي قص أو تقييد ارتفاع */
+    .site-banner-wrapper {
+      width: 100%;
+      background: #ffffff;
+      box-shadow: var(--shadow-sm);
+      border-bottom: 2px solid #eef2f1;
+      position: relative;
+    }
+
+    .banner-image-container {
+      width: 100%;
+      background: #ffffff;
+      line-height: 0;
+      overflow: hidden;
+    }
+
+    .banner-image {
+      width: 100%;
+      height: auto;
+      display: block;
+      object-fit: contain;
+    }
+
+    /* شريط الأدوات أسفل الترويسة */
+    .banner-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 25px;
+      background: #ffffff;
+      border-top: 1px solid #edf2f0;
+      gap: 15px;
+    }
+
+    .toolbar-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .mobile-menu-btn {
+      display: none;
+      background: none;
+      border: none;
+      font-size: 1.4rem;
+      color: var(--primary-color);
+      cursor: pointer;
+      padding: 6px 10px;
+      border-radius: var(--radius-sm);
+      transition: background 0.2s;
+    }
+
+    .mobile-menu-btn:hover {
+      background-color: #f0f7f5;
+    }
+
+    .toolbar-title {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--primary-color);
+    }
+
+    .header-center-search {
+      flex: 0 1 360px;
+      position: relative;
+    }
+
+    .header-center-search input {
+      width: 100%;
+      padding: 9px 38px 9px 15px;
+      border-radius: 25px;
+      border: 1px solid var(--border-color);
+      background-color: #f8faf9;
+      font-size: 0.9rem;
+      outline: none;
+      transition: all 0.3s ease;
+    }
+
+    .header-center-search input:focus {
+      border-color: var(--primary-color);
+      background-color: #ffffff;
+      box-shadow: 0 0 0 3px rgba(11, 96, 81, 0.1);
+    }
+
+    .header-center-search i {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    .app-container {
+      display: flex;
+      flex: 1;
+      position: relative;
+    }
+
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1050;
+      backdrop-filter: blur(2px);
+    }
+
+    /* القائمة الجانبية */
+    aside.sidebar {
+      width: var(--sidebar-width);
+      background: #ffffff;
+      border-left: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      z-index: 1100;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .sidebar-menu {
+      list-style: none;
+      padding: 16px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .menu-item-btn {
+      width: 100%;
+      background: none;
+      border: none;
+      padding: 12px 14px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: var(--text-main);
+      font-size: 0.94rem;
+      font-weight: 500;
+      cursor: pointer;
+      text-align: right;
+      transition: all 0.2s ease;
+    }
+
+    .menu-item-btn .btn-content {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .menu-item-btn i.icon {
+      font-size: 1.05rem;
+      color: var(--primary-color);
+      width: 22px;
+      text-align: center;
+    }
+
+    .menu-item-btn:hover {
+      background-color: #f0f7f5;
+      color: var(--primary-color);
+    }
+
+    .menu-item-btn.active {
+      background-color: var(--primary-color);
+      color: #ffffff;
+    }
+
+    .menu-item-btn.active i.icon {
+      color: #ffffff;
+    }
+
+    .submenu-wrapper {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.35s ease-out;
+      background: #fafcfb;
+      border-radius: var(--radius-sm);
+      margin-top: 4px;
+    }
+
+    .submenu-wrapper.open {
+      max-height: 480px;
+      border: 1px solid #edf2f0;
+    }
+
+    .arrow-icon {
+      font-size: 0.72rem;
+      transition: transform 0.3s ease;
+    }
+
+    .has-dropdown.open .arrow-icon {
+      transform: rotate(180deg);
+    }
+
+    .submenu-list {
+      list-style: none;
+      padding: 5px 8px;
+    }
+
+    .submenu-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 12px;
+      font-size: 0.86rem;
+      color: #475569;
+      text-decoration: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .submenu-link:hover {
+      color: var(--primary-color);
+      background-color: #e9f3f0;
+      transform: translateX(-4px);
+    }
+
+    .submenu-link.active {
+      background: rgba(11, 96, 81, 0.12);
+      color: var(--primary-color);
+      font-weight: 700;
+    }
+
+    .submenu-link i {
+      font-size: 0.55rem;
+      color: var(--accent-color);
+    }
+
+    /* المحتوى الرئيسي */
+    main.main-content {
+      flex: 1;
+      padding: 25px 35px;
+      overflow-y: auto;
+      background: var(--bg-light);
+    }
+
+    .content-page {
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .content-page.active-page {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .page-title-badge {
+      display: inline-block;
+      padding: 5px 12px;
+      background: rgba(11, 96, 81, 0.08);
+      color: var(--primary-color);
+      border-radius: 20px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .page-heading {
+      font-size: 1.65rem;
+      font-weight: 800;
+      color: var(--primary-color);
+      margin-bottom: 6px;
+      line-height: 1.3;
+    }
+
+    .page-subtext {
+      color: var(--text-muted);
+      margin-bottom: 20px;
+      font-size: 0.92rem;
+      line-height: 1.6;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: var(--radius-md);
+      padding: 22px;
+      border: 1px solid var(--border-color);
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 20px;
+    }
+
+    .guide-banner {
+      background: linear-gradient(135deg, #0b6051, #084c40);
+      color: white;
+      border-radius: var(--radius-md);
+      padding: 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 25px;
+      gap: 20px;
+    }
+
+    .guide-banner h2 {
+      font-size: 1.5rem;
+      margin-bottom: 10px;
+      line-height: 1.3;
+    }
+
+    .guide-banner p {
+      opacity: 0.92;
+      line-height: 1.6;
+      max-width: 650px;
+      font-size: 0.95rem;
+    }
+
+    .leadership-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      padding: 7px 15px;
+      border-radius: 30px;
+      margin-top: 14px;
+      font-size: 0.9rem;
+    }
+
+    .video-showcase-container {
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      box-shadow: var(--shadow-md);
+      margin-bottom: 22px;
+    }
+
+    .video-player-wrapper {
+      position: relative;
+      background: #000;
+      width: 100%;
+      border-bottom: 3px solid var(--primary-color);
+    }
+
+    .video-player-wrapper video {
+      width: 100%;
+      max-height: 480px;
+      display: block;
+      margin: 0 auto;
+      outline: none;
+    }
+
+    .btn-download {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 11px 22px;
+      background: var(--primary-color);
+      color: white;
+      border-radius: var(--radius-sm);
+      text-decoration: none;
+      font-size: 0.92rem;
+      font-weight: 600;
+      transition: background 0.2s;
+    }
+
+    .btn-download:hover {
+      background: var(--primary-hover);
+    }
+
+    /* منطقة الاختبار */
+    .quiz-section {
+      background: #ffffff;
+      border: 2px solid #dbece6;
+      border-radius: var(--radius-md);
+      padding: 24px;
+      margin-top: 25px;
+      box-shadow: var(--shadow-md);
+    }
+
+    .quiz-title {
+      font-size: 1.22rem;
+      font-weight: 800;
+      color: var(--primary-color);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+      line-height: 1.4;
+    }
+
+    .quiz-user-info {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 14px;
+      background: #f8faf9;
+      padding: 16px;
+      border-radius: var(--radius-sm);
+      margin-bottom: 22px;
+      border: 1px solid var(--border-color);
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .form-group label {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #334155;
+    }
+
+    .form-group input, .form-group select {
+      width: 100%;
+      padding: 9px 12px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-color);
+      font-size: 0.92rem;
+      outline: none;
+      background: white;
+    }
+
+    .question-block {
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 18px;
+      margin-bottom: 18px;
+    }
+
+    .question-text {
+      font-weight: 700;
+      font-size: 1rem;
+      margin-bottom: 12px;
+      color: var(--text-main);
+      line-height: 1.5;
+    }
+
+    .options-list {
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+    }
+
+    .option-item {
+      padding: 11px 14px;
+      border: 1px solid #cbd5e1;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.92rem;
+      line-height: 1.4;
+      transition: all 0.2s;
+    }
+
+    .option-item:hover {
+      background-color: #f1f5f9;
+    }
+
+    .option-item input[type="radio"] {
+      transform: scale(1.15);
+      cursor: pointer;
+      accent-color: var(--primary-color);
+      flex-shrink: 0;
+    }
+
+    .feedback-box {
+      margin-top: 12px;
+      padding: 12px 16px;
+      border-radius: var(--radius-sm);
+      font-size: 0.9rem;
+      line-height: 1.5;
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .feedback-box.correct {
+      display: none !important;
+    }
+
+    .feedback-box.wrong {
+      display: block;
+      background: #fef2f2;
+      color: var(--error-color);
+      border: 1px solid #fecaca;
+    }
+
+    .submit-quiz-btn {
+      padding: 12px 28px;
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 12px;
+      transition: background 0.2s;
+    }
+
+    .submit-quiz-btn:hover {
+      background: var(--primary-hover);
+    }
+
+    .submit-quiz-btn:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+    }
+
+    .certificate-award-box {
+      display: none;
+      background: linear-gradient(135deg, #f0f9f6 0%, #ffffff 100%);
+      border: 2px dashed var(--primary-color);
+      border-radius: var(--radius-md);
+      padding: 22px;
+      margin-top: 22px;
+      text-align: center;
+      animation: fadeIn 0.4s ease;
+    }
+
+    .certificate-award-box h3 {
+      color: var(--primary-color);
+      font-size: 1.3rem;
+      margin-bottom: 6px;
+    }
+
+    .certificate-award-box p.encouragement-txt {
+      color: #334155;
+      font-size: 0.98rem;
+      margin-bottom: 16px;
+      font-weight: 500;
+      line-height: 1.6;
+    }
+
+    .btn-print-cert {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 11px 26px;
+      background: var(--accent-color);
+      color: #2c2514;
+      border: none;
+      border-radius: 30px;
+      font-size: 0.95rem;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(205, 168, 81, 0.3);
+      transition: transform 0.2s, background 0.2s;
+    }
+
+    .btn-print-cert:hover {
+      background: #b8933f;
+      color: white;
+      transform: translateY(-2px);
+    }
+
+    /* نافذة الشهادة */
+    .cert-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.75);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      overflow-y: auto;
+    }
+
+    .cert-modal-content {
+      background: white;
+      border-radius: var(--radius-md);
+      max-width: 840px;
+      width: 100%;
+      padding: 20px;
+      position: relative;
+      margin: auto;
+    }
+
+    .cert-frame {
+      border: 6px double var(--primary-color);
+      padding: 28px 30px;
+      position: relative;
+      background: #fffdfa;
+      text-align: center;
+    }
+
+    .cert-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      gap: 15px;
+    }
+
+    .cert-title {
+      font-family: 'Amiri', serif;
+      font-size: 2rem;
+      color: var(--primary-color);
+      margin: 12px 0;
+      font-weight: 800;
+    }
+
+    .cert-body-txt {
+      font-size: 1.05rem;
+      line-height: 1.8;
+      color: #2d3748;
+      margin: 18px 0;
+    }
+
+    .cert-user-name {
+      font-size: 1.45rem;
+      font-weight: 800;
+      color: var(--primary-color);
+      border-bottom: 2px solid var(--accent-color);
+      display: inline-block;
+      padding: 0 16px 4px;
+    }
+
+    .cert-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-top: 28px;
+      padding-top: 18px;
+      border-top: 1px solid #e2e8f0;
+      gap: 10px;
+    }
+
+    .cert-modal-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin-top: 18px;
+      flex-wrap: wrap;
+    }
+
+    /* لوحة تحكم الإدارة */
+    .lockscreen-card {
+      max-width: 440px;
+      margin: 40px auto;
+      text-align: center;
+      padding: 30px 24px;
+      background: white;
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-md);
+      border: 1px solid var(--border-color);
+    }
+
+    .lock-icon {
+      width: 70px;
+      height: 70px;
+      background: rgba(11, 96, 81, 0.1);
+      color: var(--primary-color);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      margin: 0 auto 15px;
+    }
+
+    .pin-input {
+      width: 100%;
+      text-align: center;
+      font-size: 1.6rem;
+      letter-spacing: 8px;
+      padding: 10px;
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      margin: 16px 0;
+      outline: none;
+    }
+
+    .table-wrapper {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .results-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 16px;
+      background: white;
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      min-width: 620px;
+    }
+
+    .results-table th, .results-table td {
+      padding: 12px 14px;
+      text-align: right;
+      border-bottom: 1px solid #e2e8f0;
+      font-size: 0.9rem;
+    }
+
+    .results-table th {
+      background: #f1f7f5;
+      color: var(--primary-color);
+      font-weight: 700;
+    }
+
+    .badge-role {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 20px;
+      font-size: 0.76rem;
+      font-weight: 700;
+    }
+
+    .role-teacher { background: #e0f2fe; color: #0369a1; }
+    .role-admin { background: #fef3c7; color: #b45309; }
+
+    /* التجاوب مع مختلف الشاشات */
+    @media (max-width: 1024px) {
+      .header-center-search {
+        flex: 0 1 280px;
+      }
+      main.main-content {
+        padding: 20px 22px;
+      }
+    }
+
+    @media (max-width: 860px) {
+      .mobile-menu-btn {
+        display: inline-block;
+      }
+
+      .banner-toolbar {
+        padding: 8px 16px;
+        flex-wrap: wrap;
+      }
+
+      .header-center-search {
+        order: 3;
+        flex: 1 1 100%;
+        margin-top: 5px;
+      }
+
+      aside.sidebar {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        width: 280px;
+        max-width: 80vw;
+        height: 100%;
+        transform: translateX(100%);
+        box-shadow: -4px 0 15px rgba(0,0,0,0.15);
+      }
+
+      aside.sidebar.mobile-active {
+        transform: translateX(0);
+      }
+
+      .sidebar-overlay.active {
+        display: block;
+      }
+
+      main.main-content {
+        padding: 18px 16px;
+        width: 100%;
+      }
+
+      .guide-banner {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 22px 18px;
+      }
+
+      .guide-banner i.fa-school-flag {
+        display: none;
+      }
+
+      .quiz-user-info {
+        grid-template-columns: 1fr;
+      }
+
+      .cert-frame {
+        padding: 20px 15px;
+      }
+
+      .cert-title {
+        font-size: 1.6rem;
+      }
+
+      .cert-user-name {
+        font-size: 1.25rem;
+      }
+
+      .cert-body-txt {
+        font-size: 0.95rem;
+      }
+
+      .cert-footer {
+        flex-direction: column;
+        align-items: center;
+        gap: 16px;
+        text-align: center !important;
+      }
+
+      .cert-footer > div {
+        text-align: center !important;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .toolbar-title {
+        font-size: 0.95rem;
+      }
+
+      .page-heading {
+        font-size: 1.35rem;
+      }
+
+      .submit-quiz-btn, .btn-print-cert, .btn-download {
+        width: 100%;
+      }
+
+      .card {
+        padding: 16px;
+      }
+
+      .quiz-section {
+        padding: 16px;
+      }
+    }
+
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #printable-cert, #printable-cert * {
+        visibility: visible;
+      }
+      #printable-cert {
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background: white;
+        padding: 30px;
+      }
+      .cert-modal-actions, .close-cert-btn {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- الترويسة العلوية الكاملة بدون قص -->
+  <header class="site-banner-wrapper">
+    <div class="banner-image-container">
+      <img src="ترويسة.png" alt="ترويسة ثانوية بحرة الأولى - وزارة التعليم" class="banner-image">
+    </div>
+    <div class="banner-toolbar">
+      <div class="toolbar-right">
+        <button class="mobile-menu-btn" onclick="toggleMobileSidebar()" aria-label="القائمة الجانبية">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+        <span class="toolbar-title"><i class="fa-solid fa-book-open-reader"></i> بوابة الأدلة التنظيمية المعتمدة</span>
+      </div>
+      <div class="header-center-search">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" placeholder="ابحث في الأدلة واللوائح الرسمية...">
+      </div>
+    </div>
+  </header>
+
+  <div class="app-container">
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
+
+    <aside class="sidebar" id="appSidebar">
+      <ul class="sidebar-menu">
+        <li>
+          <button class="menu-item-btn active" id="btn-intro-menu" onclick="showPage('intro-page', this)">
+            <span class="btn-content">
+              <i class="fa-solid fa-circle-info icon"></i>
+              <span>التعريف بالأدلة</span>
+            </span>
+          </button>
+        </li>
+
+        <li class="has-dropdown">
+          <button class="menu-item-btn" onclick="toggleSubmenu(this)">
+            <span class="btn-content">
+              <i class="fa-solid fa-book-bookmark icon"></i>
+              <span>الأدلة التنظيمية</span>
+            </span>
+            <i class="fa-solid fa-chevron-down arrow-icon"></i>
+          </button>
+
+          <div class="submenu-wrapper" id="regulations-submenu">
+            <ul class="submenu-list">
+              <li><a class="submenu-link" onclick="showSubPage('guide-tests', this)"><i class="fa-solid fa-circle"></i> دليل الاختبارات</a></li>
+              <li><a class="submenu-link" onclick="showSubPage('guide-specialties', this)"><i class="fa-solid fa-circle"></i> دليل التخصصات لشاغلي الوظائف</a></li>
+              <li><a class="submenu-link" onclick="showSubPage('guide-conduct', this)"><i class="fa-solid fa-circle"></i> السلوك المهني لمنسوبي الوزارة</a></li>
+              <li><a class="submenu-link" onclick="showSubPage('guide-grades', this)"><i class="fa-solid fa-circle"></i> دليل توزيع درجات المواد</a></li>
+              <li><a class="submenu-link" onclick="showSubPage('guide-evaluation', this)"><i class="fa-solid fa-circle"></i> لائحة تقويم الطالب</a></li>
+              <li><a class="submenu-link" onclick="showSubPage('guide-attendance', this)"><i class="fa-solid fa-circle"></i> قواعد السلوك والمواظبة</a></li>
+            </ul>
+          </div>
+        </li>
+
+        <li>
+          <button class="menu-item-btn" onclick="openAdminDashboard(this)">
+            <span class="btn-content">
+              <i class="fa-solid fa-lock icon"></i>
+              <span>لوحة تحكم المدير</span>
+            </span>
+          </button>
+        </li>
+      </ul>
+    </aside>
+
+    <main class="main-content">
+
+      <!-- 1: الصفحة الرئيسية (التعريف بالأدلة) -->
+      <section id="intro-page" class="content-page active-page">
+        <span class="page-title-badge">البوابة الرسمية واللوائح</span>
+        <h2 class="page-heading">لغة الدليل وبوصلة الوعي الإداري</h2>
+        <p class="page-subtext">مرجع شامل لكافة الأنظمة واللوائح والقرارات المعتمدة من وزارة التعليم لضمان جودة الأداء التعليمي والمدرسي.</p>
+        
+        <div class="guide-banner">
+          <div>
+            <h2>مرحباً بك في نظام الأدلة الرقمي</h2>
+            <p>تم إعداد هذه المنصة الخاصة بثانوية بحرة الأولى لتسهيل وصول الكادر التعليمي، الإداري إلى جميع اللوائح التنظيمية الرسمية المعتمدة بكل يسر ووضوح.</p>
+            <div class="leadership-badge">
+              <i class="fa-solid fa-user-tie"></i>
+              <span>مديرة المدرسة: <strong>ليلى مبارك حسين</strong></span>
+            </div>
+          </div>
+          <i class="fa-solid fa-school-flag" style="font-size: 4rem; opacity: 0.4;"></i>
+        </div>
+      </section>
+
+      <!-- 2: دليل الاختبارات -->
+      <section id="guide-tests" class="content-page">
+        <span class="page-title-badge">الأدلة التنظيمية</span>
+        <h2 class="page-heading">دليل الاختبارات 2025م</h2>
+        <div class="video-showcase-container">
+          <div class="video-player-wrapper">
+            <video controls preload="auto" playsinline width="100%">
+              <source src="الاختبارات.mp4" type="video/mp4">
+              <source src="%D8%A7%D9%84%D8%AE%D8%AA%D8%A8%D8%A7%D8%B1%D8%A7%D8%AA.mp4" type="video/mp4">
+            </video>
+          </div>
+        </div>
+        <div class="card">
+          <a href="https://www.moe.gov.sa/ar/aboutus/aboutministry/RPRLibrary/__%D8%AF%D9%84%D9%8A%D9%84%20%D8%A7%D9%84%D8%A7%D8%AE%D8%AA%D8%A8%D8%A7%D8%B1%D8%A7%D8%AA%202025%D9%85%20%D9%85%D8%AD%D8%AF%D8%AB.pdf" target="_blank" rel="noopener noreferrer" class="btn-download">
+            <i class="fa-solid fa-file-pdf"></i> تحميل نسخة الدليل (PDF)
+          </a>
+        </div>
+        <div class="quiz-section">
+          <div class="quiz-title"><i class="fa-solid fa-pen-to-square"></i> اختبار التحقق من استيعاب دليل الاختبارات (5 أسئلة)</div>
+          <form id="quiz-tests-form" onsubmit="evaluateQuiz(event, 'tests')">
+            <div class="quiz-user-info">
+              <div class="form-group"><label>الاسم الثلاثي:</label><input type="text" id="tests-user-name" placeholder="أدخلي الاسم الثلاثي..." required></div>
+              <div class="form-group"><label>الصفة الوظيفية:</label><select id="tests-user-role" required><option value="معلمة">معلمة</option><option value="إدارية">إدارية</option></select></div>
+            </div>
+            <div class="question-block" id="q-tests-1"><div class="question-text">1. قبل كم أسبوع من بدء الاختبارات النهائية يجب تسليم نماذج الأسئلة والإجابة لإدارة المدرسة؟</div><div class="options-list"><label class="option-item"><input type="radio" name="tests-q1" value="a" required><span>أ) قبل بدء الاختبارات بثلاثة أيام فقط.</span></label><label class="option-item"><input type="radio" name="tests-q1" value="b"><span>ب) بوقت كافٍ على ألا يقل عن أسبوعين من بدء الاختبارات النهائية.</span></label><label class="option-item"><input type="radio" name="tests-q1" value="c"><span>ج) صباح يوم الاختبار نفسه لضمان السرية.</span></label></div><div class="feedback-box" id="fb-tests-1"></div></div>
+            <div class="question-block" id="q-tests-2"><div class="question-text">2. ما هي درجة القرابة المانعة للمعلم من المشاركة في وضع أو تصوير أسئلة اختبار الطلاب؟</div><div class="options-list"><label class="option-item"><input type="radio" name="tests-q2" value="a" required><span>أ) قرابة من الدرجة الأولى.</span></label><label class="option-item"><input type="radio" name="tests-q2" value="b"><span>ب) قرابة من الدرجة الرابعة فقط.</span></label><label class="option-item"><input type="radio" name="tests-q2" value="c"><span>ج) لا مانع نظامي من وضع الأسئلة مع وجود أي درجة قرابة.</span></label></div><div class="feedback-box" id="fb-tests-2"></div></div>
+            <div class="question-block" id="q-tests-3"><div class="question-text">3. متى تُفتح ظروف أسئلة الاختبار التحريري بمحضر رسمي من قبل لجنة الإشراف؟</div><div class="options-list"><label class="option-item"><input type="radio" name="tests-q3" value="a" required><span>أ) قبل موعد بدء الاختبار بـ (15) دقيقة وبحضور المعلم إن أمكن.</span></label><label class="option-item"><input type="radio" name="tests-q3" value="b"><span>ب) قبل بداية اليوم الدراسي بساعتين كاملتين.</span></label><label class="option-item"><input type="radio" name="tests-q3" value="c"><span>ج) في نهاية اليوم السابق للتأكد من عدد النسخ.</span></label></div><div class="feedback-box" id="fb-tests-3"></div></div>
+            <div class="question-block" id="q-tests-4"><div class="question-text">4. ما هو الضابط النظامي في شأن الطالب المتأخر عن موعد بدء الاختبار التحريري؟</div><div class="options-list"><label class="option-item"><input type="radio" name="tests-q4" value="a" required><span>أ) يمنع من الدخول فوراً إذا تأخر دقيقة واحدة.</span></label><label class="option-item"><input type="radio" name="tests-q4" value="b"><span>ب) إذا تأخر بما لا يتجاوز نصف الزمن المخصص للاختبار وقبل خروج أي طالب يسمح له بالدخول مع تعهد خطي.</span></label><label class="option-item"><input type="radio" name="tests-q4" value="c"><span>ج) يسمح له بالدخول حتى آخر دقيقة من الاختبار دون قيد.</span></label></div><div class="feedback-box" id="fb-tests-4"></div></div>
+            <div class="question-block" id="q-tests-5"><div class="question-text">5. ما هو الإجراء المعتمد في حال غياب الطالب بعذر مقبول عن اختبار نهاية إحدى الفترات الدراسية؟</div><div class="options-list"><label class="option-item"><input type="radio" name="tests-q5" value="a" required><span>أ) يحق له دخول الاختبار البديل بنفس الدرجة المخصصة للاختبار الذي تغيب عنه.</span></label><label class="option-item"><input type="radio" name="tests-q5" value="b"><span>ب) يعتبر راسباً في المادة ويعيد الفصل الدراسي بالكامل.</span></label><label class="option-item"><input type="radio" name="tests-q5" value="c"><span>ج) تحسم من درجاته 50% ويختبر شفهياً فقط.</span></label></div><div class="feedback-box" id="fb-tests-5"></div></div>
+            <button type="submit" class="submit-quiz-btn" id="btn-sub-tests">إرسال إجابات اختبار دليل الاختبارات</button>
+          </form>
+
+          <div id="cert-box-tests" class="certificate-award-box">
+            <h3><i class="fa-solid fa-award"></i> هنيئاً لكِ هذا التميز والإنجاز!</h3>
+            <p class="encouragement-txt">"تميزك وإتقانك للوائح التعليمية يجسد روح المسؤولية والمهنية العالية.. دمتِ نبراساً معطاءً لثانوية بحرة الأولى"</p>
+            <button class="btn-print-cert" onclick="openCertificate('tests')">
+              <i class="fa-solid fa-print"></i> طباعة شهادة اجتياز الدليل
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3: دليل التخصصات لشاغلي الوظائف -->
+      <section id="guide-specialties" class="content-page">
+        <span class="page-title-badge">الأدلة التنظيمية والتخصصية</span>
+        <h2 class="page-heading">دليل التخصصات لشغل الوظائف التعليمية 2025م</h2>
+        <div class="video-showcase-container">
+          <div class="video-player-wrapper">
+            <video controls preload="auto" playsinline width="100%">
+              <source src="التخصصات.mp4" type="video/mp4">
+              <source src="%D8%A7%D9%84%D8%AA%D8%AE%D8%B5%D8%B5%D8%A7%D8%AA.mp4" type="video/mp4">
+            </video>
+          </div>
+        </div>
+        <div class="card">
+          <a href="https://www.moe.gov.sa/ar/aboutus/aboutministry/RPRLibrary/%D8%AF%D9%84%D9%8A%D9%84%20%D8%A7%D9%84%D8%AA%D8%AE%D8%B5%D8%B5%D8%A7%D8%AA%20%D9%84%D8%B4%D8%BA%D9%84%20%D8%A7%D9%84%D9%88%D8%B8%D8%A7%D8%A6%D9%81%20%D8%A7%D9%84%D8%AA%D8%AE%D9%84%D9%8A%D9%85%D9%8A%D8%A9.pdf" target="_blank" rel="noopener noreferrer" class="btn-download">
+            <i class="fa-solid fa-file-pdf"></i> تحميل دليل التخصصات (PDF)
+          </a>
+        </div>
+        <div class="quiz-section">
+          <div class="quiz-title"><i class="fa-solid fa-list-check"></i> اختبار التحقق من استيعاب دليل التخصصات (5 أسئلة)</div>
+          <form id="quiz-specialties-form" onsubmit="evaluateQuiz(event, 'specialties')">
+            <div class="quiz-user-info">
+              <div class="form-group"><label>الاسم الثلاثي:</label><input type="text" id="specialties-user-name" placeholder="أدخلي الاسم الثلاثي..." required></div>
+              <div class="form-group"><label>الصفة الوظيفية:</label><select id="specialties-user-role" required><option value="معلمة">معلمة</option><option value="إدارية">إدارية</option></select></div>
+            </div>
+            <div class="question-block" id="q-spec-1"><div class="question-text">1. وفق الترميز المعتمد في دليل التخصصات، ما هي الرموز الدالة على المراحل التعليمية (الابتدائية، المتوسطة، والثانوية)؟</div><div class="options-list"><label class="option-item"><input type="radio" name="spec-q1" value="a" required><span>أ) الرمز (1) للابتدائية، و(2) للمتوسطة، و(3) للثانوية.</span></label><label class="option-item"><input type="radio" name="spec-q1" value="b"><span>ب) الرمز (2) للمرحلة الابتدائية، و(3) للمتوسطة، و(4) للمرحلة الثانوية.</span></label><label class="option-item"><input type="radio" name="spec-q1" value="c"><span>ج) الرمز (أ) للابتدائية، و(ب) للمتوسطة، و(ج) للثانوية.</span></label></div><div class="feedback-box" id="fb-spec-1"></div></div>
+            <div class="question-block" id="q-spec-2"><div class="question-text">2. ما هي متطلبات الرخصة المهنية المعتمدة لتدريس مادة "التربية الإسلامية" في المرحلتين المتوسطة والثانوية؟</div><div class="options-list"><label class="option-item"><input type="radio" name="spec-q2" value="a" required><span>أ) رخصة الصفوف الأولية فقط.</span></label><label class="option-item"><input type="radio" name="spec-q2" value="b"><span>ب) الرخصة المهنية في تخصص "التربية الإسلامية (2)" مع بكالوريوس في التخصصات الشرعية المعتمدة.</span></label><label class="option-item"><input type="radio" name="spec-q2" value="c"><span>ج) الرخصة المهنية في تخصص "التربية الإسلامية (1)" لجميع المراحل.</span></label></div><div class="feedback-box" id="fb-spec-2"></div></div>
+            <div class="question-block" id="q-spec-3"><div class="question-text">3. ما الفرق بين متطلبات تدريس مادة "اللغة العربية" للمرحلة الابتدائية مقارنة بالمتوسطة والثانوية؟</div><div class="options-list"><label class="option-item"><input type="radio" name="spec-q3" value="a" required><span>أ) الابتدائية تقبل إعداد معلمات وتعليم ابتدائي برخصة (1)، بينما المتوسطة والثانوية تتطلبان رخصة (2) والتخصص الدقيق (أدب، نحو، بلاغة).</span></label><label class="option-item"><input type="radio" name="spec-q3" value="b"><span>ب) لا يوجد أي فرق بين المراحل الثلاث وتقبل نفس الرخصة والمؤهل تماماً.</span></label><label class="option-item"><input type="radio" name="spec-q3" value="c"><span>ج) المرحلة الثانوية تكتفي بالرخصة العامة فقط.</span></label></div><div class="feedback-box" id="fb-spec-3"></div></div>
+            <div class="question-block" id="q-spec-4"><div class="question-text">4. وفق دليل التخصصات لمادة "المهارات الرقمية" (رمز 10009)، ما هو المؤهل والرخصة المطلوبة لتدريسها؟</div><div class="options-list"><label class="option-item"><input type="radio" name="spec-q4" value="a" required><span>أ) دورة تدريبية في استخدام الحاسب الآلي لمدة ثلاثة أشهر.</span></label><label class="option-item"><input type="radio" name="spec-q4" value="b"><span>ب) بكالوريوس في علوم الحاسب، هندسة البرمجيات، نظم المعلومات، أو الشبكات مع رخصة تخصص الحاسب.</span></label><label class="option-item"><input type="radio" name="spec-q4" value="c"><span>ج) بكالوريوس إدارة أعمال مسار تسويق فقط.</span></label></div><div class="feedback-box" id="fb-spec-4"></div></div>
+            <div class="question-block" id="q-spec-5"><div class="question-text">5. في مسارات التربية الخاصة (الفكرية والتوحد)، ما شرط التسكين لمن يحمل درجة جامعية في (تربية خاصة عام)؟</div><div class="options-list"><label class="option-item"><input type="radio" name="spec-q5" value="a" required><span>أ) تدريب ميداني لمدة فصل دراسي كامل في برامج أو معاهد المسار المحدد مع الرخصة التخصصية.</span></label><label class="option-item"><input type="radio" name="spec-q5" value="b"><span>ب) التعيين المباشر دون الحاجة لأي تدريب ميداني أو رخصة خاصة.</span></label><label class="option-item"><input type="radio" name="spec-q5" value="c"><span>ج) الحصول على رخصة الصفوف الأولية فقط.</span></label></div><div class="feedback-box" id="fb-spec-5"></div></div>
+            <button type="submit" class="submit-quiz-btn" id="btn-sub-specialties">إرسال إجابات اختبار دليل التخصصات</button>
+          </form>
+
+          <div id="cert-box-specialties" class="certificate-award-box">
+            <h3><i class="fa-solid fa-award"></i> مبارك اجتيازك لمعايير دليل التخصصات!</h3>
+            <p class="encouragement-txt">"كفاءتك وعطاؤك المستمر هو سر نجاح العملية التعليمية.. دمتِ فخراً لثانوية بحرة الأولى ومجتمعها المدرسي"</p>
+            <button class="btn-print-cert" onclick="openCertificate('specialties')">
+              <i class="fa-solid fa-print"></i> طباعة شهادة اجتياز الدليل
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4: السلوك المهني لمنسوبي الوزارة -->
+      <section id="guide-conduct" class="content-page">
+        <span class="page-title-badge">الأدلة التنظيمية والمهنية</span>
+        <h2 class="page-heading">مدونة قواعد السلوك الوظيفي وأخلاقيات الوظيفة 1447هـ</h2>
+        <div class="video-showcase-container">
+          <div class="video-player-wrapper">
+            <video controls preload="auto" playsinline width="100%">
+              <source src="السلوك المهني 2.mp4" type="video/mp4">
+              <source src="%D8%A7%D9%84%D8%B3%D9%84%D9%88%D9%83%20%D8%A7%D9%84%D9%85%D9%87%D9%86%D9%8A%202.mp4" type="video/mp4">
+            </video>
+          </div>
+        </div>
+        <div class="card">
+          <a href="conduct_guide.pdf" download="مدونة السلوك المهني.pdf" class="btn-download">
+            <i class="fa-solid fa-file-pdf"></i> تحميل وثيقة السلوك المهني (PDF)
+          </a>
+        </div>
+        <div class="quiz-section">
+          <div class="quiz-title"><i class="fa-solid fa-user-check"></i> اختبار استيعاب مدونة السلوك المهني (5 أسئلة)</div>
+          <form id="quiz-conduct-form" onsubmit="evaluateQuiz(event, 'conduct')">
+            <div class="quiz-user-info">
+              <div class="form-group"><label>الاسم الثلاثي:</label><input type="text" id="conduct-user-name" placeholder="أدخلي الاسم الثلاثي..." required></div>
+              <div class="form-group"><label>الصفة الوظيفية:</label><select id="conduct-user-role" required><option value="معلمة">معلمة</option><option value="إدارية">إدارية</option></select></div>
+            </div>
+            <div class="question-block" id="q-conduct-1"><div class="question-text">1. ما هو الحكم النظامي الصريح الوارد في المادة (17) بشأن قبول الهدايا أو الخدمات؟</div><div class="options-list"><label class="option-item"><input type="radio" name="conduct-q1" value="a" required><span>أ) يحظر قبول الهدايا أو الخدمات أو أي ميزة تؤثر مباشرة أو غير مباشرة على نزاهته وقراراته.</span></label><label class="option-item"><input type="radio" name="conduct-q1" value="b"><span>ب) يجوز قبول الهدايا العينية غير النقدية دون قيد.</span></label><label class="option-item"><input type="radio" name="conduct-q1" value="c"><span>ج) يسمح بها خارج ساعات الدوام الرسمي.</span></label></div><div class="feedback-box" id="fb-conduct-1"></div></div>
+            <div class="question-block" id="q-conduct-2"><div class="question-text">2. تنص المادة (8) والمادة (15) بشأن وثائق ومعلومات الطلاب الشخصية وسرية العمل على:</div><div class="options-list"><label class="option-item"><input type="radio" name="conduct-q2" value="a" required><span>أ) التعامل مع الوثائق والمعلومات بسرية تامة، وحظر إفشائها حتى بعد انتهاء الخدمة.</span></label><label class="option-item"><input type="radio" name="conduct-q2" value="b"><span>ب) تداول درجات الطالبات وسجلاتهن في وسائل التواصل الاجتماعي.</span></label><label class="option-item"><input type="radio" name="conduct-q2" value="c"><span>ج) حفظ الوثائق السرية في أجهزة حاسوب شخصية مفتوحة دون كلمة مرور.</span></label></div><div class="feedback-box" id="fb-conduct-2"></div></div>
+            <div class="question-block" id="q-conduct-3"><div class="question-text">3. وفق المادة (19)، ما هو الالتزام المفروض عند استخدام شبكة الإنترنت والتقنية في المدرسة؟</div><div class="options-list"><label class="option-item"><input type="radio" name="conduct-q3" value="a" required><span>أ) قصر استخدامها على أغراض العمل والتحقق التام من سلامة المحتوى المعروض أمام الطلاب.</span></label><label class="option-item"><input type="radio" name="conduct-q3" value="b"><span>ب) تحميل الوسائط الترفيهية غير المرتبطة بالعمل.</span></label><label class="option-item"><input type="radio" name="conduct-q3" value="c"><span>ج) مشاركة كلمة السر مع الآخرين لإنجاز الأعمال نيابة عنه.</span></label></div><div class="feedback-box" id="fb-conduct-3"></div></div>
+            <div class="question-block" id="q-conduct-4"><div class="question-text">4. وفق المادة (22)، ما الإجراء الواجب لمنع "تعارض المصالح" عند وجود صلة قرابة؟</div><div class="options-list"><label class="option-item"><input type="radio" name="conduct-q4" value="a" required><span>أ) الإفصاح خطياً لجهة عمله، وعدم المشاركة في أي قرار يخص قريباً حتى الدرجة الرابعة.</span></label><label class="option-item"><input type="radio" name="conduct-q4" value="b"><span>ب) اتخاذ القرار مباشرة وتفضيل القريب من باب صلة الرحم.</span></label><label class="option-item"><input type="radio" name="conduct-q4" value="c"><span>ج) الاكتفاء بإبلاغ الزملاء شفهياً دون توثيق.</span></label></div><div class="feedback-box" id="fb-conduct-4"></div></div>
+            <div class="question-block" id="q-conduct-5"><div class="question-text">5. وفق المادة (23)، ما الإجراء النظامي الفوري والملزم حال عرض رشوة؟</div><div class="options-list"><label class="option-item"><input type="radio" name="conduct-q5" value="a" required><span>أ) إعلام رئيسه المباشر فوراً ليتخذ الإجراء اللازم وإعداد تقرير عن الواقعة وإبلاغ الجهات المختصة.</span></label><label class="option-item"><input type="radio" name="conduct-q5" value="b"><span>ب) قبول الرشوة ثم صرفها في تجهيز الأنشطة المدرسية.</span></label><label class="option-item"><input type="radio" name="conduct-q5" value="c"><span>ج) التكتم على الموضوع لتجنب النزاعات والخلافات.</span></label></div><div class="feedback-box" id="fb-conduct-5"></div></div>
+            <button type="submit" class="submit-quiz-btn" id="btn-sub-conduct">إرسال إجابات اختبار السلوك المهني</button>
+          </form>
+
+          <div id="cert-box-conduct" class="certificate-award-box">
+            <h3><i class="fa-solid fa-award"></i> نفخر بنزاهتك والتزامك المهني!</h3>
+            <p class="encouragement-txt">"النزاهة والأمانة وسام يزين مسيرتك التربوية والتعليمية.. شكراً لعطائك المخلص في ثانوية بحرة الأولى"</p>
+            <button class="btn-print-cert" onclick="openCertificate('conduct')">
+              <i class="fa-solid fa-print"></i> طباعة شهادة اجتياز الدليل
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5: دليل توزيع درجات المواد الدراسية -->
+      <section id="guide-grades" class="content-page">
+        <span class="page-title-badge">الأدلة التنظيمية والتقويمية</span>
+        <h2 class="page-heading">دليل توزيع درجات المواد الدراسية 2025م</h2>
+        <div class="video-showcase-container">
+          <div class="video-player-wrapper">
+            <video controls preload="auto" playsinline width="100%">
+              <source src="توزيع الدرجات.mp4" type="video/mp4">
+              <source src="%D8%AA%D9%88%D8%B2%D9%8A%D8%B9%20%D8%A7%D9%84%D8%AF%D8%B1%D8%AC%D8%A7%D8%AA.mp4" type="video/mp4">
+            </video>
+          </div>
+        </div>
+        <div class="card">
+          <a href="https://www.moe.gov.sa/ar/aboutus/aboutministry/RPRLibrary/__%D8%AF%D9%84%D9%8A%D9%84%20%D8%AA%D9%88%D8%B2%D9%8A%D8%B9%20%D8%AF%D8%B1%D8%AC%D8%A7%D8%AA%20%D8%A7%D9%84%D9%85%D9%88%D8%A7%D8%AF%20%D8%A7%D9%84%D8%AF%D8%B1%D8%A7%D8%B3%D9%8A%D8%A9%202025%D9%85.pdf" target="_blank" rel="noopener noreferrer" class="btn-download">
+            <i class="fa-solid fa-file-pdf"></i> تحميل دليل توزيع درجات المواد (PDF)
+          </a>
+        </div>
+        <div class="quiz-section">
+          <div class="quiz-title"><i class="fa-solid fa-calculator"></i> اختبار التحقق من استيعاب دليل توزيع الدرجات (5 أسئلة)</div>
+          <form id="quiz-grades-form" onsubmit="evaluateQuiz(event, 'grades')">
+            <div class="quiz-user-info">
+              <div class="form-group"><label>الاسم الثلاثي:</label><input type="text" id="grades-user-name" placeholder="أدخلي الاسم الثلاثي..." required></div>
+              <div class="form-group"><label>الصفة الوظيفية:</label><select id="grades-user-role" required><option value="معلمة">معلمة</option><option value="إدارية">إدارية</option></select></div>
+            </div>
+            <div class="question-block" id="q-grd-1"><div class="question-text">1. كم درجة مخصصة للاختبارات التحريرية القصيرة خلال الفترة الدراسية وكم مرة ترصد في النظام الإلكتروني؟</div><div class="options-list"><label class="option-item"><input type="radio" name="grd-q1" value="a" required><span>أ) من (10) درجات وترصد مرة واحدة فقط.</span></label><label class="option-item"><input type="radio" name="grd-q1" value="b"><span>ب) من (20) درجة وترصد في النظام الإلكتروني مرتين على الأقل خلال الفترة الدراسية.</span></label><label class="option-item"><input type="radio" name="grd-q1" value="c"><span>ج) من (30) درجة وترصد أسبوعياً.</span></label></div><div class="feedback-box" id="fb-grd-1"></div></div>
+            <div class="question-block" id="q-grd-2"><div class="question-text">2. عند إخفاق الطالب في المادة الدراسية ودخوله اختبار الدور الثاني:</div><div class="options-list"><label class="option-item"><input type="radio" name="grd-q2" value="a" required><span>أ) يعيد الاختبار في كامل المقرر من (100) درجة وتلغى درجاته السابقة.</span></label><label class="option-item"><input type="radio" name="grd-q2" value="b"><span>ب) يتم الاحتفاظ بجزء من الدرجات التي حققها خلال الفترة وتمثل (40) درجة، ويختبر الدور الثاني من (60) درجة.</span></label><label class="option-item"><input type="radio" name="grd-q2" value="c"><span>ج) يختبر من (20) درجة فقط.</span></label></div><div class="feedback-box" id="fb-grd-2"></div></div>
+            <div class="question-block" id="q-grd-3"><div class="question-text">3. ما هو الإجراء المعتمد عند تعذر تقويم الطالب في الجانب العملي لعدم توفر التجهيزات (معامل / مختبرات)؟</div><div class="options-list"><label class="option-item"><input type="radio" name="grd-q3" value="a" required><span>أ) حرمان الطالب من درجات الجانب العملي.</span></label><label class="option-item"><input type="radio" name="grd-q3" value="b"><span>ب) تقويم الطالب من خلال المشاريع أو البحوث أو ما يراه المعلم مناسباً ويعكس مدى إلمام الطالب بالمهارة.</span></label><label class="option-item"><input type="radio" name="grd-q3" value="c"><span>ج) نقل الطالب لمدرسة أخرى فوراً.</span></label></div><div class="feedback-box" id="fb-grd-3"></div></div>
+            <div class="question-block" id="q-grd-4"><div class="question-text">4. ما هو الضابط بحق الطالب المتغيب عن الحصص أو الاختبارات القصيرة بدون عذر مقبول؟</div><div class="options-list"><label class="option-item"><input type="radio" name="grd-q4" value="a" required><span>أ) يمنح درجة كاملة تقديراً لحضوره في الأيام الأخرى.</span></label><label class="option-item"><input type="radio" name="grd-q4" value="b"><span>ب) لا يمنح درجة كاملة في المشاركة والتفاعل، ولا يعاد له الاختبار القصير ولا يمنح درجات تعويضية.</span></label><label class="option-item"><input type="radio" name="grd-q4" value="c"><span>ج) يعاد له الاختبار القصير في أي وقت.</span></label></div><div class="feedback-box" id="fb-grd-4"></div></div>
+            <div class="question-block" id="q-grd-5"><div class="question-text">5. كيف توزع الـ (100) درجة المخصصة لمشروع التخرج في المرحلة الثانوية؟</div><div class="options-list"><label class="option-item"><input type="radio" name="grd-q5" value="a" required><span>أ) (50) درجة للاختبار التحريري و(50) للمقابلة.</span></label><label class="option-item"><input type="radio" name="grd-q5" value="b"><span>ب) (40) درجة للجانب المعرفي (الاتصال، القيادة، التقارير)، و(60) درجة للجانب المهاري (الفكرة، النموذج، المنتج، العرض).</span></label><label class="option-item"><input type="radio" name="grd-q5" value="c"><span>ج) (100) درجة على تسليم الملف الورقي فقط.</span></label></div><div class="feedback-box" id="fb-grd-5"></div></div>
+            <button type="submit" class="submit-quiz-btn" id="btn-sub-grades">إرسال إجابات اختبار توزيع الدرجات</button>
+          </form>
+
+          <div id="cert-box-grades" class="certificate-award-box">
+            <h3><i class="fa-solid fa-award"></i> إنجاز رائع وإتقان متميز!</h3>
+            <p class="encouragement-txt">"دقة الرصد والتقويم تصنع فارقاً حقيقياً في جودة المخرجات التربوية والتعليمية.. بارك الله في جهودك المميزة"</p>
+            <button class="btn-print-cert" onclick="openCertificate('grades')">
+              <i class="fa-solid fa-print"></i> طباعة شهادة اجتياز الدليل
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 6: لائحة تقويم الطالب -->
+      <section id="guide-evaluation" class="content-page">
+        <span class="page-title-badge">الأدلة التنظيمية</span>
+        <h2 class="page-heading">لائحة تقويم الطالب 2025م</h2>
+        <div class="video-showcase-container">
+          <div class="video-player-wrapper">
+            <video controls preload="auto" playsinline width="100%">
+              <source src="تقويم الطالب.mp4" type="video/mp4">
+              <source src="%D8%AA%D9%82%D9%88%D9%8A%D9%85%20%D8%A7%D9%84%D8%B7%D8%A7%D9%84%D8%A8.mp4" type="video/mp4">
+            </video>
+          </div>
+        </div>
+        <div class="card">
+          <a href="https://www.moe.gov.sa/ar/aboutus/aboutministry/RPRLibrary/%D9%84%D8%A7%D9%8A%D9%94%D8%AD%D8%A9%20%D8%AA%D9%82%D9%88%D9%8A%D9%85%20%D8%A7%D9%84%D8%B7%D8%A7%D9%84%D8%A8%202025%D9%85.pdf" target="_blank" rel="noopener noreferrer" class="btn-download">
+            <i class="fa-solid fa-file-pdf"></i> تحميل لائحة تقويم الطالب 2025م (PDF)
+          </a>
+        </div>
+        <div class="quiz-section">
+          <div class="quiz-title"><i class="fa-solid fa-list-check"></i> اختبار التحقق من استيعاب لائحة تقويم الطالب (5 أسئلة)</div>
+          <form id="quiz-evaluation-form" onsubmit="evaluateQuiz(event, 'evaluation')">
+            <div class="quiz-user-info">
+              <div class="form-group"><label>الاسم الثلاثي:</label><input type="text" id="evaluation-user-name" placeholder="أدخلي الاسم الثلاثي..." required></div>
+              <div class="form-group"><label>الصفة الوظيفية:</label><select id="evaluation-user-role" required><option value="معلمة">معلمة</option><option value="إدارية">إدارية</option></select></div>
+            </div>
+            <div class="question-block" id="q-eval-1"><div class="question-text">1. ما هو تعريف "النسبة الشرطية" ومقدارها وفق لائحة تقويم الطالب؟</div><div class="options-list"><label class="option-item"><input type="radio" name="eval-q1" value="a" required><span>أ) الحصول على 50% من مجموع أعمال السنة.</span></label><label class="option-item"><input type="radio" name="eval-q1" value="b"><span>ب) الدرجة التي يلزم الحصول عليها في ورقة الاختبار التحريري وتعد شرطاً للنجاح ومقدارها 20%.</span></label><label class="option-item"><input type="radio" name="eval-q1" value="c"><span>ج) نسبة حضور الطالب بما لا يقل عن 75%.</span></label></div><div class="feedback-box" id="fb-eval-1"></div></div>
+            <div class="question-block" id="q-eval-2"><div class="question-text">2. ما الاستثناء المطبق على تقويم طلاب الصفين الأول والثاني الابتدائي؟</div><div class="options-list"><label class="option-item"><input type="radio" name="eval-q2" value="a" required><span>أ) جميع المواد تخضع لاختبارات ختامية موحدة.</span></label><label class="option-item"><input type="radio" name="eval-q2" value="b"><span>ب) يُقوّم التحصيل تقويماً تكوينياً معتمداً على مستويات الأداء، ما عدا مادتي (الرياضيات واللغة العربية) فيتم تقويمهما قبلياً وتكوينياً وختامياً.</span></label><label class="option-item"><input type="radio" name="eval-q2" value="c"><span>ج) يُعفى الطلاب من أي نوع من أنواع التقويم.</span></label></div><div class="feedback-box" id="fb-eval-2"></div></div>
+            <div class="question-block" id="q-eval-3"><div class="question-text">3. كيف يتم احتساب معدل الطالب التراكمي في شهادة إتمام المرحلة الثانوية؟</div><div class="options-list"><label class="option-item"><input type="radio" name="eval-q3" value="a" required><span>أ) بناءً على درجات الصف الثالث الثانوي فقط بنسبة 100%.</span></label><label class="option-item"><input type="radio" name="eval-q3" value="b"><span>ب) تراكمياً وفق الوزن النسبي المخصص لكل صف دراسي في المرحلة الثانوية.</span></label><label class="option-item"><input type="radio" name="eval-q3" value="c"><span>ج) باختبار تحصيلي عام خارج المدرسة دون النظر لسنوات الدراسة.</span></label></div><div class="feedback-box" id="fb-eval-3"></div></div>
+            <div class="question-block" id="q-eval-4"><div class="question-text">4. ما هو الضابط النظامي لنظام "التسريع" للطلاب المتميزين وفق اللائحة؟</div><div class="options-list"><label class="option-item"><input type="radio" name="eval-q4" value="a" required><span>أ) يحق للطالب المتفوق تفوقاً غير عادي الحصول على فرصة التسريع لصف أعلى مرة واحدة في كل مرحلة دراسية.</span></label><label class="option-item"><input type="radio" name="eval-q4" value="b"><span>ب) التسريع متاح في كل عام دراسي دون أي سقف محدد.</span></label><label class="option-item"><input type="radio" name="eval-q4" value="c"><span>ج) يقتصر التسريع على المرحلة الابتدائية فقط.</span></label></div><div class="feedback-box" id="fb-eval-4"></div></div>
+            <div class="question-block" id="q-eval-5"><div class="question-text">5. كيف يتم تقويم الطالب ذي الإعاقة في حال تعذر استفادته مما يقدم في فصل التعليم العام؟</div><div class="options-list"><label class="option-item"><input type="radio" name="eval-q5" value="a" required><span>أ) يُحرم من التقويم ويرسب في المادة تلقائياً.</span></label><label class="option-item"><input type="radio" name="eval-q5" value="b"><span>ب) يتم تقويمه في محتوى الخطة التعليمية الفردية وبأدوات تناسب احتياجاته بإشراف معلم التربية الخاصة.</span></label><label class="option-item"><input type="radio" name="eval-q5" value="c"><span>ج) يُلزم بأداء نفس الاختبارات التحريرية الموحدة دون أي مراعاة فردية.</span></label></div><div class="feedback-box" id="fb-eval-5"></div></div>
+            <button type="submit" class="submit-quiz-btn" id="btn-sub-evaluation">إرسال إجابات اختبار لائحة التقويم</button>
+          </form>
+
+          <div id="cert-box-evaluation" class="certificate-award-box">
+            <h3><i class="fa-solid fa-award"></i> مبارك اجتياز لائحة تقويم الطالب!</h3>
+            <p class="encouragement-txt">"وعيك العميق باللوائح التقويمية يدعم عدالة التحصيل وبناء جيل منافس ومتميز.. كل التقدير لإخلاصك"</p>
+            <button class="btn-print-cert" onclick="openCertificate('evaluation')">
+              <i class="fa-solid fa-print"></i> طباعة شهادة اجتياز الدليل
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 7: قواعد السلوك والمواظبة -->
+      <section id="guide-attendance" class="content-page">
+        <span class="page-title-badge">الأدلة التنظيمية</span>
+        <h2 class="page-heading">قواعد السلوك والمواظبة 1447هـ</h2>
+        <div class="video-showcase-container">
+          <div class="video-player-wrapper">
+            <video controls preload="auto" playsinline width="100%">
+              <source src="قواعد السلوك والمواظبة.mp4" type="video/mp4">
+              <source src="%D9%82%D9%88%D8%A7%D8%B9%D8%AF%20%D8%A7%D9%84%D8%B3%D9%84%D9%88%D9%83%20%D8%A7%D9%84%D9%85%D9%88%D8%A7%D8%B8%D8%A8%D8%A9.mp4" type="video/mp4">
+            </video>
+          </div>
+        </div>
+        <div class="card">
+          <a href="https://www.moe.gov.sa/ar/aboutus/aboutministry/RPRLibrary/%D9%82%D9%88%D8%A7%D8%B9%D8%AF%20%D8%A7%D9%84%D8%B3%D9%84%D9%88%D9%83%20%D8%A7%D9%84%D9%85%D9%88%D8%A7%D8%B8%D8%A8%D8%A9%20%D9%84%D8%B7%D9%84%D8%A7%D8%A8%20%D9%88%D8%B7%D8%A7%D9%84%D8%A8%D8%A7%D8%AA%20%D8%A7%D9%84%D8%AA%D8%B9%D9%84%D9%8A%D9%85%20%D8%A7%D9%84%D8%B9%D8%A7%D9%85%201447.pdf" target="_blank" rel="noopener noreferrer" class="btn-download">
+            <i class="fa-solid fa-file-pdf"></i> تحميل قواعد السلوك والمواظبة 1447هـ (PDF)
+          </a>
+        </div>
+        <div class="quiz-section">
+          <div class="quiz-title"><i class="fa-solid fa-clipboard-check"></i> اختبار التحقق من استيعاب قواعد السلوك والمواظبة (5 أسئلة)</div>
+          <form id="quiz-attendance-form" onsubmit="evaluateQuiz(event, 'attendance')">
+            <div class="quiz-user-info">
+              <div class="form-group"><label>الاسم الثلاثي:</label><input type="text" id="attendance-user-name" placeholder="أدخلي الاسم الثلاثي..." required></div>
+              <div class="form-group"><label>الصفة الوظيفية:</label><select id="attendance-user-role" required><option value="معلمة">معلمة</option><option value="إدارية">إدارية</option></select></div>
+            </div>
+            <div class="question-block" id="q-att-1"><div class="question-text">1. كيف تقسم الـ (100) درجة المخصصة لمادة السلوك للطلبة من الصف الثالث الابتدائي وحتى الثالث الثانوي؟</div><div class="options-list"><label class="option-item"><input type="radio" name="att-q1" value="a" required><span>أ) 50% للاختبارات التحريرية، و50% لتقييم المعلم الشفهي.</span></label><label class="option-item"><input type="radio" name="att-q1" value="b"><span>ب) 80% للسلوك الإيجابي (تمنح تلقائياً بداية كل فصل)، و20% للسلوك المتميز مع إتاحة فرص التعويض.</span></label><label class="option-item"><input type="radio" name="att-q1" value="c"><span>ج) 100% للسلوك المتميز دون وجود درجة للسلوك الإيجابي التلقائي.</span></label></div><div class="feedback-box" id="fb-att-1"></div></div>
+            <div class="question-block" id="q-att-2"><div class="question-text">2. كم عدد درجات السلوك الإيجابي التي تحسم عند ارتكاب مشكلة سلوكية من (الدرجة الرابعة) و (الدرجة الخامسة) على التوالي؟</div><div class="options-list"><label class="option-item"><input type="radio" name="att-q2" value="a" required><span>أ) تحسم درجتان للرابعة، و3 درجات للخامسة.</span></label><label class="option-item"><input type="radio" name="att-q2" value="b"><span>ب) تحسم (10 درجات) لمشكلات الدرجة الرابعة، و(15 درجة) لمشكلات الدرجة الخامسة.</span></label><label class="option-item"><input type="radio" name="att-q2" value="c"><span>ج) تحسم 5 درجات للرابعة، و20 درجة للخامسة.</span></label></div><div class="feedback-box" id="fb-att-2"></div></div>
+            <div class="question-block" id="q-att-3"><div class="question-text">3. ما هي المهلة النظامية المحددة للطالب أو ولي أمره لتقديم عذر الغياب المقبول لإدارة المدرسة؟</div><div class="options-list"><label class="option-item"><input type="radio" name="att-q3" value="a" required><span>أ) خلال ثلاثة أيام عمل بعد الغياب، ويجوز قبول العذر بعد ذلك بمبرر مقبول بما لا يتجاوز 10 أيام عمل.</span></label><label class="option-item"><input type="radio" name="att-q3" value="b"><span>ب) شهر كامل من تاريخ الغياب دون الحاجة لمبرر.</span></label><label class="option-item"><input type="radio" name="att-q3" value="c"><span>ج) في نفس يوم الغياب فقط.</span></label></div><div class="feedback-box" id="fb-att-3"></div></div>
+            <div class="question-block" id="q-att-4"><div class="question-text">4. ما هو الإجراء المعتمد في حال استمرار غياب الطالب بدون عذر لمدة (3 أيام متصلة أو أكثر) أو بلوغه (5 أيام بدون عذر)؟</div><div class="options-list"><label class="option-item"><input type="radio" name="att-q4" value="a" required><span>أ) الفصل النهائي من التعليم وحرمانه من الدراسة.</span></label><label class="option-item"><input type="radio" name="att-q4" value="b"><span>ب) استدعاء ولي الأمر، إحالة الطالب للجنة التوجيه الطلابي، ومخاطبة الجهات ذات الاختصاص حيال تطبيق نظام حماية الطفل ونظام الحماية من الإيذاء.</span></label><label class="option-item"><input type="radio" name="att-q4" value="c"><span>ج) الاكتفاء بإرسال رسالة نصية فقط دون أي إجراء تربوي.</span></label></div><div class="feedback-box" id="fb-att-4"></div></div>
+            <div class="question-block" id="q-att-5"><div class="question-text">5. ما هو الرقم الموحد لمركز بلاغات وزارة الموارد البشرية والتنمية الاجتماعية عند اكتشاف حالات إيذاء أو إهمال تتطلب تدخلاً عاجلاً؟</div><div class="options-list"><label class="option-item"><input type="radio" name="att-q5" value="a" required><span>أ) الرقم (1919).</span></label><label class="option-item"><input type="radio" name="att-q5" value="b"><span>ب) الرقم (937).</span></label><label class="option-item"><input type="radio" name="att-q5" value="c"><span>ج) الرقم (999).</span></label></div><div class="feedback-box" id="fb-att-5"></div></div>
+            <button type="submit" class="submit-quiz-btn" id="btn-sub-attendance">إرسال إجابات اختبار السلوك والمواظبة</button>
+          </form>
+
+          <div id="cert-box-attendance" class="certificate-award-box">
+            <h3><i class="fa-solid fa-award"></i> تحية تقدير لانضباطك وتميزك!</h3>
+            <p class="encouragement-txt">"بناء القيم وتعزيز الانضباط السلوكي أساس البيئة المدرسية الإيجابية.. شكراً لعطائك المؤثر في مدرستنا"</p>
+            <button class="btn-print-cert" onclick="openCertificate('attendance')">
+              <i class="fa-solid fa-print"></i> طباعة شهادة اجتياز الدليل
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- لوحة تحكم المدير -->
+      <section id="admin-dashboard" class="content-page">
+        <span class="page-title-badge">الإدارة المدرسية الموثوقة</span>
+        <h2 class="page-heading">لوحة تحكم إدارة ثانوية بحرة الأولى</h2>
+        <p class="page-subtext">سجل درجات الاختبارات ونسب اجتياز المعلمات والإداريات للأدلة التنظيمية من كافة الأجهزة.</p>
+
+        <div id="admin-lock-screen" class="lockscreen-card">
+          <div class="lock-icon"><i class="fa-solid fa-shield-halved"></i></div>
+          <h3 style="color: var(--primary-color); margin-bottom: 8px;">بوابة الإدارة المعتمدة</h3>
+          <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 18px; line-height: 1.6;">
+            هذه المنطقة مخصصة لإدارة المدرسة فقط. سجّلي الدخول بحساب المدير المعتمد لعرض السجلات المحفوظة في قاعدة البيانات.
+          </p>
+
+          <input type="email" id="admin-email" value="RayaLilly1980@gmail.com" class="pin-input" style="letter-spacing: normal; font-size: 1rem;" autocomplete="username" readonly>
+          <input type="password" id="admin-password" class="pin-input" maxlength="72" placeholder="كلمة مرور المدير" autocomplete="current-password">
+          <button class="submit-quiz-btn" style="width: 100%; margin-top: 5px;" onclick="verifyAdminLogin()">دخول السجلات</button>
+          
+          <p id="lock-error-msg" style="color: var(--error-color); font-size: 0.85rem; margin-top: 12px; display: none; font-weight: 700;">بيانات الدخول غير صحيحة.</p>
+        </div>
+
+        <div id="admin-content-area" style="display: none;">
+          <div style="background: #eef7f4; border: 1px solid #cce8de; border-radius: var(--radius-sm); padding: 12px 18px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+            <div style="font-size: 0.9rem; color: var(--primary-color);">
+              <i class="fa-solid fa-user-check"></i> مرحباً بكِ مديرة المدرسة (<strong>ليلى مبارك حسين</strong>) - السجلات متزامنة سحابياً لحساب: <strong>RayaLilly1980@gmail.com</strong>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button onclick="fetchCloudResults()" style="background: var(--primary-color); color: white; border: none; padding: 7px 14px; border-radius: 6px; font-size: 0.84rem; cursor: pointer;">
+                <i class="fa-solid fa-rotate"></i> تحديث السجلات الآن
+              </button>
+              <button onclick="exportToExcel()" style="background: var(--accent-color); color: #2d2612; border: none; padding: 7px 14px; border-radius: 6px; font-size: 0.84rem; font-weight: 700; cursor: pointer;">
+                <i class="fa-solid fa-file-excel"></i> تصدير Excel
+              </button>
+            </div>
+          </div>
+
+          <div class="stats-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
+            <div class="stat-box" style="background: white; padding: 18px; border-radius: 8px; border-right: 5px solid var(--primary-color);">
+              <span style="color: var(--text-muted); font-size: 0.85rem;">إجمالي المختبرات</span>
+              <div id="stat-total-tests" style="font-size: 1.8rem; font-weight: 800; color: var(--text-main); margin-top: 5px;">0</div>
+            </div>
+            <div class="stat-box" style="background: white; padding: 18px; border-radius: 8px; border-right: 5px solid var(--accent-color);">
+              <span style="color: var(--text-muted); font-size: 0.85rem;">عدد المعلمات</span>
+              <div id="stat-teachers-count" style="font-size: 1.8rem; font-weight: 800; color: var(--text-main); margin-top: 5px;">0</div>
+            </div>
+            <div class="stat-box" style="background: white; padding: 18px; border-radius: 8px; border-right: 5px solid #0284c7;">
+              <span style="color: var(--text-muted); font-size: 0.85rem;">عدد الإداريات</span>
+              <div id="stat-admins-count" style="font-size: 1.8rem; font-weight: 800; color: var(--text-main); margin-top: 5px;">0</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+              <h3 style="color: var(--primary-color);"><i class="fa-solid fa-clipboard-list"></i> سجل نتائج واختبارات الكادر المدرسي</h3>
+              <button onclick="clearAllResults()" style="background: #ef4444; color: white; border: none; padding: 6px 14px; border-radius: 6px; font-size: 0.85rem; cursor: pointer;">
+                <i class="fa-solid fa-trash"></i> مسح السجل كاملاً من السحابة
+              </button>
+            </div>
+
+            <div class="table-wrapper">
+              <table class="results-table">
+                <thead>
+                  <tr>
+                    <th>م</th>
+                    <th>الاسم الثلاثي</th>
+                    <th>الصفة الوظيفية</th>
+                    <th>نوع الاختبار</th>
+                    <th>النتيجة</th>
+                    <th>تاريخ ووقت الإجراء</th>
+                  </tr>
+                </thead>
+                <tbody id="results-table-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- النافذة المنبثقة لشهادة الاجتياز -->
+  <div id="certificate-modal" class="cert-modal">
+    <div class="cert-modal-content">
+      <div id="printable-cert" class="cert-frame">
+        <div class="cert-header">
+          <div style="text-align: right; line-height: 1.4;">
+            <strong style="font-size: 1rem; color: var(--primary-color);">المملكة العربية السعودية</strong><br>
+            <span style="font-size: 0.85rem;">وزارة التعليم</span><br>
+            <span style="font-size: 0.85rem;">الإدارة العامة للتعليم بمنطقة مكة المكرمة</span><br>
+            <strong style="font-size: 0.9rem; color: var(--accent-color);">ثانوية بحرة الأولى</strong>
+          </div>
+          <img src="ترويسة.png" alt="شعار التعليم" style="max-height: 55px; width: auto; object-fit: contain;">
+        </div>
+
+        <h2 class="cert-title">شهادة شكر واجتياز</h2>
+        <p style="font-size: 1rem; color: #64748b; margin-bottom: 15px;">يسر إدارة ثانوية بحرة الأولى أن تمنح هذه الشهادة لـ:</p>
+
+        <div id="cert-candidate-name" class="cert-user-name">اسم المعلمة / الإدارية</div>
+        <div id="cert-candidate-role" style="font-size: 1rem; color: #475569; margin-top: 5px;">الصفة الوظيفية</div>
+
+        <p class="cert-body-txt">
+          نظير إتمامها واجتيازها لاختبار التحقق المعرفي الخاص بـ <strong id="cert-guide-title" style="color: var(--primary-color);">اسم الدليل</strong> بنجاح بنتيجة <strong id="cert-score-val" style="color: var(--accent-color);">100%</strong>، وإلمامها بكافة الضوابط واللوائح النظامية المعتمدة.<br>
+          سائلين المولى لها دوام التوفيق والتألق في مسيرتها التعليمية المباركة.
+        </p>
+
+        <div class="cert-footer">
+          <div style="text-align: right; font-size: 0.9rem;">
+            <span>حررت بتاريخ: </span><strong id="cert-date-val">اليوم</strong>
+          </div>
+          <div style="text-align: center;">
+            <span style="font-size: 0.85rem; color: #64748b;">الختم الرسمي</span><br>
+            <div style="width: 70px; height: 70px; border: 2px dashed #cbd5e1; border-radius: 50%; margin: 5px auto; display: flex; align-items: center; justify-content: center; color: #94a3b8; font-size: 0.75rem;">معتمد</div>
+          </div>
+          <div style="text-align: left; font-size: 0.95rem;">
+            <span>مديرة المدرسة</span><br>
+            <strong style="color: var(--primary-color);">ليلى مبارك حسين</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="cert-modal-actions">
+        <button class="btn-download" onclick="window.print()"><i class="fa-solid fa-print"></i> طباعة الشهادة أو حفظ PDF</button>
+        <button class="submit-quiz-btn close-cert-btn" style="background: #64748b; margin-top: 0;" onclick="closeCertificate()"><i class="fa-solid fa-xmark"></i> إغلاق</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // =============================================
+    // Supabase - قاعدة البيانات الدائمة
+    // =============================================
+    const SUPABASE_URL = "https://aqbgdkaiwxrzpzqqbxoz.supabase.co";
+    const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_-4QnXD1MsKp24a1MQQpOCQ_ty5QvFcr";
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+
+    const TARGET_ADMIN_EMAIL = "RayaLilly1980@gmail.com";
+
+    // ملاحظة: لا يتم تخزين أي نتيجة اختبار في localStorage.
+    // Supabase Auth قد يحتفظ بجلسة تسجيل الدخول، لكن بيانات النتائج نفسها
+    // تبقى في قاعدة البيانات فقط.
+    let schoolQuizResults = [];
+    let currentCompletedQuiz = null;
+
+    window.addEventListener('DOMContentLoaded', async () => {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (session && session.user && session.user.email?.toLowerCase() === TARGET_ADMIN_EMAIL.toLowerCase()) {
+        showAdminArea();
+        await fetchCloudResults();
+      }
+    });
+
+    function toggleMobileSidebar() {
+      const sidebar = document.getElementById('appSidebar');
+      const overlay = document.getElementById('sidebarOverlay');
+      sidebar.classList.toggle('mobile-active');
+      overlay.classList.toggle('active');
+    }
+
+    function closeMobileSidebar() {
+      const sidebar = document.getElementById('appSidebar');
+      const overlay = document.getElementById('sidebarOverlay');
+      sidebar.classList.remove('mobile-active');
+      overlay.classList.remove('active');
+    }
+
+    function toggleSubmenu(button) {
+      const submenu = document.getElementById('regulations-submenu');
+      const parent = button.closest('.has-dropdown');
+      submenu.classList.toggle('open');
+      parent.classList.toggle('open');
+    }
+
+    function showPage(pageId, element) {
+      hideAllPages();
+      removeActiveSidebarButtons();
+      document.getElementById(pageId).classList.add('active-page');
+      element.classList.add('active');
+      closeMobileSidebar();
+    }
+
+    function showSubPage(pageId, linkElement) {
+      hideAllPages();
+      removeActiveSidebarButtons();
+      document.getElementById(pageId).classList.add('active-page');
+      linkElement.classList.add('active');
+      document.getElementById('regulations-submenu').classList.add('open');
+      document.querySelector('.has-dropdown').classList.add('open');
+      closeMobileSidebar();
+    }
+
+    function hideAllPages() {
+      document.querySelectorAll('.content-page').forEach(p => p.classList.remove('active-page'));
+    }
+
+    function removeActiveSidebarButtons() {
+      document.querySelectorAll('.menu-item-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.submenu-link').forEach(link => link.classList.remove('active'));
+    }
+
+    const correctAnswers = {
+      tests: {
+        q1: 'b', fb_w1: '❌ يلزم المعلم نظاماً بتسليم الأسئلة والإجابة قبل الاختبارات بأسبوعين على الأقل.',
+        q2: 'a', fb_w2: '❌ تمنع القرابة من الدرجة الأولى بالطلاب من وضع الأسئلة حفاظاً على النزاهة والحيادية.',
+        q3: 'a', fb_w3: '❌ تفتح الظروف بمحضر رسمي قبل بدء الاختبار بخمس عشرة دقيقة فقط لضمان النزاهة.',
+        q4: 'b', fb_w4: '❌ الضابط هو السماح بالدخول طالما لم يمضِ نصف الوقت ولم يخرج أي طالب من القاعة.',
+        q5: 'a', fb_w5: '❌ يحق للغائب بعذر رسمي معتمد أداء الاختبار البديل بكامل الدرجة دون حسم.'
+      },
+      specialties: {
+        q1: 'b', fb_w1: '❌ الترميز النظامي بالدليل: رمز (2) للابتدائية، رمز (3) للمتوسطة، ورمز (4) للثانوية.',
+        q2: 'b', fb_w2: '❌ تدريس المتوسطة والثانوية يتطلب رخصة (2) وشهادة جامعية في التخصصات الشرعية.',
+        q3: 'a', fb_w3: '❌ الدليل يفرّق بين رخصة (1) للابتدائية، ورخصة (2) والتخصص الدقيق للمتوسطة والثانوية.',
+        q4: 'b', fb_w4: '❌ المؤهل المطلوب هو بكالوريوس الحاسب بمختلف فروعه الهندسية والبرمجية مع رخصة الحاسب.',
+        q5: 'a', fb_w5: '❌ يشترط الدليل إكمال تدريب ميداني لمدة فصل دراسي كامل في المسار المستهدف (توحد/فكرية).'
+      },
+      conduct: {
+        q1: 'a', fb_w1: '❌ يحظر قطعياً على شاغل الوظيفة التعليمية قبول أي هدية أو خدمة تؤثر على قراراته.',
+        q2: 'a', fb_w2: '❌ النظام يحظر إفشاء أسرار العمل وبيانات الطلاب الشخصية ويوجب المحافظة التامة على سريتها.',
+        q3: 'a', fb_w3: '❌ تقضي المدونة بقصر استخدام أجهزة وشبكات العمل على المهام الوظيفية وسلامة المحتوى.',
+        q4: 'a', fb_w4: '❌ يلزم نظاماً الإفصاح والامتناع عن المشاركة في أي قرار يخص قريباً حتى الدرجة الرابعة.',
+        q5: 'a', fb_w5: '❌ الواجب النظامي الملزم عند عرض أي رشوة هو إبلاغ الرئيس المباشر فوراً وإحالتها للجهات المختصة.'
+      },
+      grades: {
+        q1: 'b', fb_w1: '❌ الاختبارات القصيرة من 20 درجة وترصد مرتين على الأقل بالنظام الإلكتروني خلال الفترة.',
+        q2: 'b', fb_w2: '❌ النظام ينص على الاحتفاظ بـ 40 درجة من تحصيل الفترة ويؤدي الدور الثاني من 60 درجة.',
+        q3: 'b', fb_w3: '❌ في حال تعذر توفر التجهيزات المعملية، يلزم تقويم الطالب عبر المشاريع والبحوث البديلة.',
+        q4: 'b', fb_w4: '❌ الطالب المتغيب بدون عذر لا يعاد له الاختبار القصير ولا يمنح درجات تعويضية.',
+        q5: 'b', fb_w5: '❌ توزع درجات مشروع التخرج بواقع 40 درجة للجانب المعرفي و60 درجة للجانب المهاري.'
+      },
+      evaluation: {
+        q1: 'b', fb_w1: '❌ النسبة الشرطية هي 20% من درجة ورقة الاختبار التحريري كشرط أساسي للنجاح.',
+        q2: 'b', fb_w2: '❌ يستثنى من التقويم التكويني المحض مادتا الرياضيات واللغة العربية اللتان تتضمنان تقويماً ختامياً.',
+        q3: 'b', fb_w3: '❌ معدل الثانوية العامة يحتسب تراكمياً وفق الوزن النسبي للسنوات وليس لسنة منفردة.',
+        q4: 'a', fb_w4: '❌ يسمح بالتسريع للمتفوق لصف أعلى مرة واحدة فقط في كل مرحلة دراسية وفق الضوابط.',
+        q5: 'b', fb_w5: '❌ عند تعذر الاستفادة في الفصل العام، يُقوّم الطالب في محتوى خطته التربوية الفردية.'
+      },
+      attendance: {
+        q1: 'b', fb_w1: '❌ درجة السلوك (100) مقسمة إلى: 80% سلوك إيجابي مستحق بداية الفصل و20% سلوك متميز.',
+        q2: 'b', fb_w2: '❌ درجات الحسم المعتمدة هي 10 درجات للرابعة و15 درجة للخامسة وفق جدول اللائحة.',
+        q3: 'a', fb_w3: '❌ المهلة النظامية هي 3 أيام عمل بعد الغياب وتصل كحد أقصى إلى 10 أيام بمبرر معتمد.',
+        q4: 'b', fb_w4: '❌ الإجراء المعتمد هو تفعيل خطة التوجيه وتطبيق نظام حماية الطفل عند الاشتباه بالإهمال.',
+        q5: 'a', fb_w5: '❌ الرقم المعتمد للبلاغات العاجلة لحالات الإيذاء أو الإهمال الأسري هو (1919).'
+      }
+    };
+
+    async function evaluateQuiz(event, type) {
+      event.preventDefault();
+
+      const btnId = `btn-sub-${type}`;
+      const submitBtn = document.getElementById(btnId);
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerText = "جاري الحفظ وإرسال النتيجة للإدارة...";
+      }
+
+      let name, role, quizName, score = 0;
+
+      const titleMap = {
+        tests: { name: 'دليل الاختبارات', id: 'tests', box: 'cert-box-tests' },
+        specialties: { name: 'دليل التخصصات لشغل الوظائف التعليمية', id: 'specialties', box: 'cert-box-specialties' },
+        conduct: { name: 'مدونة السلوك المهني وأخلاقيات الوظيفة', id: 'conduct', box: 'cert-box-conduct' },
+        grades: { name: 'دليل توزيع درجات المواد الدراسية', id: 'grades', box: 'cert-box-grades' },
+        evaluation: { name: 'لائحة تقويم الطالب', id: 'evaluation', box: 'cert-box-evaluation' },
+        attendance: { name: 'قواعد السلوك والمواظبة', id: 'attendance', box: 'cert-box-attendance' }
+      };
+
+      const meta = titleMap[type];
+      name = document.getElementById(`${meta.id}-user-name`).value.trim();
+      role = document.getElementById(`${meta.id}-user-role`).value;
+      quizName = meta.name;
+
+      const prefixMap = {
+        tests: { prefix: 'tests-q', fb: 'fb-tests-' },
+        specialties: { prefix: 'spec-q', fb: 'fb-spec-' },
+        conduct: { prefix: 'conduct-q', fb: 'fb-conduct-' },
+        grades: { prefix: 'grd-q', fb: 'fb-grd-' },
+        evaluation: { prefix: 'eval-q', fb: 'fb-eval-' },
+        attendance: { prefix: 'att-q', fb: 'fb-att-' }
+      };
+
+      const p = prefixMap[type];
+
+      for (let i = 1; i <= 5; i++) {
+        const val = document.querySelector(`input[name="${p.prefix}${i}"]:checked`)?.value;
+        const fb = document.getElementById(`${p.fb}${i}`);
+        const correctVal = correctAnswers[type][`q${i}`];
+
+        if (val === correctVal) {
+          fb.innerHTML = '';
+          fb.className = 'feedback-box';
+          fb.style.display = 'none';
+          score += 20;
+        } else {
+          fb.innerHTML = correctAnswers[type][`fb_w${i}`];
+          fb.className = 'feedback-box wrong';
+          fb.style.display = 'block';
+        }
+      }
+
+      const now = new Date();
+      const timeString = now.toLocaleDateString('ar-SA') + ' - ' + now.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' });
+
+      const newRecord = {
+        name: name,
+        role: role,
+        quiz: quizName,
+        score: score + ' / 100',
+        date: timeString
+      };
+
+      try {
+        const { error } = await supabaseClient
+          .from('quiz_results')
+          .insert([{ name, role, quiz: quizName, score: score + ' / 100' }]);
+
+        if (error) throw error;
+      } catch (err) {
+        console.error('Supabase save error:', err);
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerText = "إرسال الإجابات";
+        }
+        alert('تعذر حفظ النتيجة في قاعدة البيانات. يرجى التحقق من الاتصال ثم المحاولة مرة أخرى.');
+        return;
+      }
+
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerText = "تم إرسال الإجابات بنجاح";
+      }
+
+      currentCompletedQuiz = {
+        name: name,
+        role: role,
+        quiz: quizName,
+        score: score + '%',
+        date: now.toLocaleDateString('ar-SA')
+      };
+
+      const certBox = document.getElementById(meta.box);
+      if (certBox) {
+        certBox.style.display = 'block';
+      }
+
+      alert(`تم اعتماد إجاباتك بنجاح يا (${name})!\nالدرجة المحققة: ${score} من 100.\nتم حفظ النتيجة رسمياً لدى إدارة المدرسة، ويمكنك الآن طباعة شهادة اجتيازك.`);
+    }
+
+    function openCertificate(type) {
+      if (!currentCompletedQuiz) return;
+      document.getElementById('cert-candidate-name').innerText = currentCompletedQuiz.name;
+      document.getElementById('cert-candidate-role').innerText = `الصفة الوظيفية: ${currentCompletedQuiz.role}`;
+      document.getElementById('cert-guide-title').innerText = currentCompletedQuiz.quiz;
+      document.getElementById('cert-score-val').innerText = currentCompletedQuiz.score;
+      document.getElementById('cert-date-val').innerText = currentCompletedQuiz.date;
+      document.getElementById('certificate-modal').style.display = 'flex';
+    }
+
+    function closeCertificate() {
+      document.getElementById('certificate-modal').style.display = 'none';
+    }
+
+    function showAdminArea() {
+      document.getElementById('admin-lock-screen').style.display = 'none';
+      document.getElementById('admin-content-area').style.display = 'block';
+      document.getElementById('lock-error-msg').style.display = 'none';
+    }
+
+    function showAdminLock() {
+      document.getElementById('admin-content-area').style.display = 'none';
+      document.getElementById('admin-lock-screen').style.display = 'block';
+      document.getElementById('admin-password').value = '';
+      document.getElementById('lock-error-msg').style.display = 'none';
+    }
+
+    async function openAdminDashboard(btnElement) {
+      showPage('admin-dashboard', btnElement);
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (session && session.user && session.user.email?.toLowerCase() === TARGET_ADMIN_EMAIL.toLowerCase()) {
+        showAdminArea();
+        await fetchCloudResults();
+      } else {
+        showAdminLock();
+      }
+    }
+
+    async function verifyAdminLogin() {
+      const email = document.getElementById('admin-email').value.trim();
+      const password = document.getElementById('admin-password').value;
+      const errorMsg = document.getElementById('lock-error-msg');
+      const button = document.querySelector('#admin-lock-screen .submit-quiz-btn');
+
+      errorMsg.style.display = 'none';
+      button.disabled = true;
+      button.innerText = 'جاري التحقق...';
+
+      try {
+        const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+
+        if (!data.user || data.user.email?.toLowerCase() !== TARGET_ADMIN_EMAIL.toLowerCase()) {
+          await supabaseClient.auth.signOut();
+          throw new Error('هذا الحساب غير مصرح له بالدخول إلى لوحة المدير.');
+        }
+
+        showAdminArea();
+        await fetchCloudResults();
+      } catch (err) {
+        console.error('Admin login error:', err);
+        errorMsg.style.display = 'block';
+        errorMsg.innerText = 'بيانات الدخول غير صحيحة أو الحساب غير مصرح له.';
+        document.getElementById('admin-password').value = '';
+      } finally {
+        button.disabled = false;
+        button.innerText = 'دخول السجلات';
+      }
+    }
+
+    async function fetchCloudResults() {
+      const tbody = document.getElementById('results-table-body');
+      tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--primary-color); padding: 25px;"><i class="fa-solid fa-spinner fa-spin"></i> جاري استرجاع النتائج المحفوظة من قاعدة البيانات...</td></tr>`;
+
+      try {
+        const { data: { user } } = await supabaseClient.auth.getUser();
+        if (!user || user.email?.toLowerCase() !== TARGET_ADMIN_EMAIL.toLowerCase()) {
+          throw new Error('غير مصرح');
+        }
+
+        const { data, error } = await supabaseClient
+          .from('quiz_results')
+          .select('id,name,role,quiz,score,submitted_at,created_at')
+          .order('submitted_at', { ascending: false });
+
+        if (error) throw error;
+        schoolQuizResults = data || [];
+        renderAdminDashboard();
+      } catch (err) {
+        console.error('Supabase fetch error:', err);
+        schoolQuizResults = [];
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--error-color); padding: 25px;">تعذر استرجاع النتائج. تأكدي من تسجيل الدخول بحساب المدير.</td></tr>`;
+        document.getElementById('stat-total-tests').innerText = '0';
+        document.getElementById('stat-teachers-count').innerText = '0';
+        document.getElementById('stat-admins-count').innerText = '0';
+      }
+    }
+
+    function renderAdminDashboard() {
+      const tbody = document.getElementById('results-table-body');
+      tbody.innerHTML = '';
+
+      let teachersCount = 0;
+      let adminsCount = 0;
+
+      schoolQuizResults.forEach((item, index) => {
+        if (item.role === 'معلمة') teachersCount++;
+        if (item.role === 'إدارية') adminsCount++;
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${index + 1}</td>
+          <td><strong>${escapeHtml(item.name)}</strong></td>
+          <td><span class="badge-role ${item.role === 'معلمة' ? 'role-teacher' : 'role-admin'}">${escapeHtml(item.role)}</span></td>
+          <td>${escapeHtml(item.quiz)}</td>
+          <td><strong>${escapeHtml(item.score)}</strong></td>
+          <td style="color: var(--text-muted); font-size: 0.85rem;">${escapeHtml(item.date || formatSupabaseDate(item.submitted_at))}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      document.getElementById('stat-total-tests').innerText = schoolQuizResults.length;
+      document.getElementById('stat-teachers-count').innerText = teachersCount;
+      document.getElementById('stat-admins-count').innerText = adminsCount;
+
+      if (schoolQuizResults.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 25px;">لا توجد أي نتائج مسجلة حتى الآن. ستظهر هنا الاستجابات الجديدة فور إرسالها.</td></tr>`;
+      }
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? '').replace(/[&<>'"]/g, ch => ({
+        '&':'&amp;', '<':'&lt;', '>':'&gt;', "'":'&#39;', '"':'&quot;'
+      }[ch]));
+    }
+
+    function formatSupabaseDate(value) {
+      if (!value) return '';
+      const d = new Date(value);
+      return d.toLocaleDateString('ar-SA') + ' - ' + d.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function exportToExcel() {
+      if (schoolQuizResults.length === 0) {
+        alert("لا توجد نتائج مسجلة لتصديرها.");
+        return;
+      }
+
+      let csv = "\uFEFFم,الاسم الثلاثي,الصفة الوظيفية,نوع الاختبار,النتيجة,تاريخ ووقت الإجراء\n";
+      schoolQuizResults.forEach((item, index) => {
+        csv += `"${String(index + 1).replaceAll('"','""')}","${String(item.name ?? '').replaceAll('"','""')}","${String(item.role ?? '').replaceAll('"','""')}","${String(item.quiz ?? '').replaceAll('"','""')}","${String(item.score ?? '').replaceAll('"','""')}","${String(item.date ?? '').replaceAll('"','""')}"\n`;
+      });
+
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = `نتائج_اختبارات_ثانوية_بحرة_الأولى_${new Date().toLocaleDateString('ar-SA')}.csv`;
+      link.click();
+      URL.revokeObjectURL(link.href);
+    }
+
+    async function clearAllResults() {
+      const { data: { user } } = await supabaseClient.auth.getUser();
+      if (!user || user.email?.toLowerCase() !== TARGET_ADMIN_EMAIL.toLowerCase()) {
+        alert('غير مصرح لكِ بتنفيذ عملية المسح.');
+        return;
+      }
+
+      if (!confirm("هل أنتِ متأكدة من رغبتك في مسح سجل الاختبارات كاملاً؟ لن يتم حذف أي نتيجة تلقائياً؛ الحذف يتم فقط بأمر المدير.")) {
+        return;
+      }
+
+      try {
+        const { error } = await supabaseClient
+          .from('quiz_results')
+          .delete()
+          .neq('id', 0);
+
+        if (error) throw error;
+
+        schoolQuizResults = [];
+        renderAdminDashboard();
+        alert("تم مسح سجل النتائج من قاعدة البيانات بنجاح.");
+      } catch (err) {
+        console.error('Supabase delete error:', err);
+        alert("تعذر مسح النتائج. تأكدي من صلاحية حساب المدير ثم حاولي مرة أخرى.");
+      }
+    }
+  </script>
+</body>
+</html>
