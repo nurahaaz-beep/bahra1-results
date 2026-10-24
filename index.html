@@ -994,9 +994,7 @@
         <h2 class="page-heading">دليل الاختبارات 2025م</h2>
         <div class="video-showcase-container">
           <div class="video-player-wrapper">
-            <video controls preload="auto" playsinline width="100%">
-              <source src="الاختبارات.mp4" type="video/mp4">
-              <source src="%D8%A7%D9%84%D8%AE%D8%AA%D8%A8%D8%A7%D8%B1%D8%A7%D8%AA.mp4" type="video/mp4">
+            <video class="local-guide-video" controls preload="metadata" playsinline width="100%" data-video-file="الاختبارات.mp4">
             </video>
           </div>
         </div>
@@ -1036,9 +1034,7 @@
         <h2 class="page-heading">دليل التخصصات لشغل الوظائف التعليمية 2025م</h2>
         <div class="video-showcase-container">
           <div class="video-player-wrapper">
-            <video controls preload="auto" playsinline width="100%">
-              <source src="التخصصات.mp4" type="video/mp4">
-              <source src="%D8%A7%D9%84%D8%AA%D8%AE%D8%B5%D8%B5%D8%A7%D8%AA.mp4" type="video/mp4">
+            <video class="local-guide-video" controls preload="metadata" playsinline width="100%" data-video-file="التخصصات.mp4">
             </video>
           </div>
         </div>
@@ -1078,14 +1074,12 @@
         <h2 class="page-heading">مدونة قواعد السلوك الوظيفي وأخلاقيات الوظيفة 1447هـ</h2>
         <div class="video-showcase-container">
           <div class="video-player-wrapper">
-            <video controls preload="auto" playsinline width="100%">
-              <source src="السلوك المهني 2.mp4" type="video/mp4">
-              <source src="%D8%A7%D9%84%D8%B3%D9%84%D9%88%D9%83%20%D8%A7%D9%84%D9%85%D9%87%D9%86%D9%8A%202.mp4" type="video/mp4">
+            <video class="local-guide-video" controls preload="metadata" playsinline width="100%" data-video-file="السلوك المهني 2.mp4">
             </video>
           </div>
         </div>
         <div class="card">
-          <a href="conduct_guide.pdf" download="مدونة السلوك المهني.pdf" class="btn-download">
+          <a href="conduct_guide.pdf" download="مدونة السلوك المهني.pdf" data-local-file="conduct_guide.pdf" class="btn-download">
             <i class="fa-solid fa-file-pdf"></i> تحميل وثيقة السلوك المهني (PDF)
           </a>
         </div>
@@ -1120,9 +1114,7 @@
         <h2 class="page-heading">دليل توزيع درجات المواد الدراسية 2025م</h2>
         <div class="video-showcase-container">
           <div class="video-player-wrapper">
-            <video controls preload="auto" playsinline width="100%">
-              <source src="توزيع الدرجات.mp4" type="video/mp4">
-              <source src="%D8%AA%D9%88%D8%B2%D9%8A%D8%B9%20%D8%A7%D9%84%D8%AF%D8%B1%D8%AC%D8%A7%D8%AA.mp4" type="video/mp4">
+            <video class="local-guide-video" controls preload="metadata" playsinline width="100%" data-video-file="توزيع الدرجات.mp4">
             </video>
           </div>
         </div>
@@ -1162,9 +1154,7 @@
         <h2 class="page-heading">لائحة تقويم الطالب 2025م</h2>
         <div class="video-showcase-container">
           <div class="video-player-wrapper">
-            <video controls preload="auto" playsinline width="100%">
-              <source src="تقويم الطالب.mp4" type="video/mp4">
-              <source src="%D8%AA%D9%82%D9%88%D9%8A%D9%85%20%D8%A7%D9%84%D8%B7%D8%A7%D9%84%D8%A8.mp4" type="video/mp4">
+            <video class="local-guide-video" controls preload="metadata" playsinline width="100%" data-video-file="تقويم الطالب.mp4">
             </video>
           </div>
         </div>
@@ -1204,9 +1194,7 @@
         <h2 class="page-heading">قواعد السلوك والمواظبة 1447هـ</h2>
         <div class="video-showcase-container">
           <div class="video-player-wrapper">
-            <video controls preload="auto" playsinline width="100%">
-              <source src="قواعد السلوك والمواظبة.mp4" type="video/mp4">
-              <source src="%D9%82%D9%88%D8%A7%D8%B9%D8%AF%20%D8%A7%D9%84%D8%B3%D9%84%D9%88%D9%83%20%D8%A7%D9%84%D9%85%D9%88%D8%A7%D8%B8%D8%A8%D8%A9.mp4" type="video/mp4">
+            <video class="local-guide-video" controls preload="metadata" playsinline width="100%" data-video-file="قواعد السلوك والمواظبة.mp4">
             </video>
           </div>
         </div>
@@ -1775,5 +1763,41 @@
       }
     }
   </script>
+
+<script>
+(function () {
+  function localAssetUrl(fileName) {
+    // Encode the complete filename safely for Vercel/GitHub static hosting,
+    // while keeping the path relative to index.html.
+    return './' + encodeURIComponent(fileName).replace(/%2F/gi, '/');
+  }
+
+  document.querySelectorAll('video.local-guide-video').forEach(function (video) {
+    var file = video.getAttribute('data-video-file');
+    if (!file) return;
+    var source = document.createElement('source');
+    source.src = localAssetUrl(file);
+    source.type = 'video/mp4';
+    video.appendChild(source);
+
+    video.addEventListener('error', function () {
+      var wrap = video.closest('.video-player-wrapper') || video.parentElement;
+      if (wrap && !wrap.querySelector('.video-error-message')) {
+        var msg = document.createElement('div');
+        msg.className = 'video-error-message';
+        msg.textContent = 'تعذر تشغيل المقطع. تأكدي من رفع ملف الفيديو بنفس الاسم إلى المستودع.';
+        msg.style.cssText = 'padding:12px;margin-top:8px;border-radius:8px;background:#fff3f3;color:#a33;text-align:center;font-family:Tajawal,sans-serif;';
+        wrap.appendChild(msg);
+      }
+    });
+  });
+
+  document.querySelectorAll('a[data-local-file]').forEach(function (link) {
+    var file = link.getAttribute('data-local-file');
+    if (file) link.href = localAssetUrl(file);
+  });
+})();
+</script>
+
 </body>
 </html>
